@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - OOP Quiz Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .player-score {
+            flex: 1;
+            text-align: center;
+        }
+
+        .player-x { color: #2196F3; }
+        .player-o { color: #FF5722; }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .cell {
+            background: white;
+            border: 2px solid #333;
+            font-size: 48px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cell:hover {
+            background: #e0e0e0;
+        }
+
+        .cell.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .game-status {
+            font-size: 20px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #e0e0e0;
+        }
+
+        .reset-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #45a049;
+        }
+
+        /* Quiz Modal Styles */
+        .quiz-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .quiz-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .option {
+            margin: 10px 0;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .option:hover {
+            background: #e3f2fd;
+        }
+
+        .option.selected {
+            background: #2196F3;
+            color: white;
+        }
+
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            display: none;
+            font-size: 14px;
+        }
+
+        .quiz-submit {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .quiz-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .close-quiz {
+            background: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .close-quiz:hover {
+            background: #da190b;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Tic Tac Toe - OOP Quiz Arcade</h1>
+        
+        <div class="score-board">
+            <div class="player-score">
+                <h3 class="player-x">Player X</h3>
+                <div class="score-value" id="scoreX">0</div>
+            </div>
+            <div class="player-score">
+                <h3 class="player-o">Player O</h3>
+                <div class="score-value" id="scoreO">0</div>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div class="game-status" id="gameStatus">Player X's turn</div>
+        <button class="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+    </div>
+
+    <div class="quiz-overlay" id="quizOverlay">
+        <div class="quiz-container">
+            <h2>📚 OOP Quiz Challenge</h2>
+            <div id="quizQuestions"></div>
+            <button class="quiz-submit" id="submitQuiz">Submit Answers</button>
+            <button class="close-quiz" onclick="closeQuiz()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== OOP QUESTIONS DATA ==========
+        const oopQuestions = [
+            {
+                text: "What is encapsulation in OOP?",
+                options: [
+                    "Hiding internal details and protecting data",
+                    "Creating multiple methods with same name",
+                    "Inheriting properties from parent class",
+                    "Converting one data type to another"
+                ],
+                correct: 0,
+                explanation: "Encapsulation bundles data and methods within a class, hiding internal implementation details."
+            },
+            {
+                text: "Which concept allows a class to have multiple forms?",
+                options: [
+                    "Inheritance",
+                    "Polymorphism",
+                    "Abstraction",
+                    "Encapsulation"
+                ],
+                correct: 1,
+                explanation: "Polymorphism allows objects to take multiple forms (method overloading/overriding)."
+            },
+            {
+                text: "What is inheritance?",
+                options: [
+                    "Creating multiple instances of a class",
+                    "Hiding data from outside access",
+                    "A class acquiring properties of another class",
+                    "Binding data and methods together"
+                ],
+                correct: 2,
+                explanation: "Inheritance allows a child class to inherit properties and methods from a parent class."
+            },
+            {
+                text: "Which is NOT an OOP principle?",
+                options: [
+                    "Inheritance",
+                    "Polymorphism",
+                    "Compilation",
+                    "Encapsulation"
+                ],
+                correct: 2,
+                explanation: "Compilation is a process, not an OOP principle. The four pillars are Encapsulation, Inheritance, Polymorphism, and Abstraction."
+            },
+            {
+                text: "What is abstraction?",
+                options: [
+                    "Hiding implementation and showing only functionality",
+                    "Creating multiple objects from a class",
+                    "Converting objects to different types",
+                    "Reusing code through inheritance"
+                ],
+                correct: 0,
+                explanation: "Abstraction hides complex implementation details and shows only essential features."
+            },
+            {
+                text: "What does 'this' keyword refer to in JavaScript class?",
+                options: [
+                    "Global object",
+                    "Parent class",
+                    "Current instance of the class",
+                    "Class definition"
+                ],
+                correct: 2,
+                explanation: "'this' refers to the current instance of the class."
+            },
+            {
+                text: "What is method overriding?",
+                options: [
+                    "Creating multiple methods with different parameters",
+                    "Child class redefining parent class method",
+                    "Calling parent class method from child class",
+                    "Deleting a method from class"
+                ],
+                correct: 1,
+                explanation: "Method overriding allows a child class to provide specific implementation of a parent class method."
+            },
+            {
+                text: "Which keyword is used for inheritance in JavaScript?",
+                options: [
+                    "inherit",
+                    "extends",
+                    "super",
+                    "implements"
+                ],
+                correct: 1,
+                explanation: "'extends' keyword is used to create a child class that inherits from a parent class."
+            }
+        ];
+
+        function getRandomQuestions(count = 5) {
+            const shuffled = [...oopQuestions];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, count);
+        }
+
+        // ========== GAME STATE ==========
+        let board = Array(9).fill(null);
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let scores = { X: 0, O: 0 };
+        let quizMode = false;
+        let currentQuestions = [];
+        let userAnswers = [];
+        let quizSubmitted = false;
+
+        // ========== LOCAL STORAGE FUNCTIONS ==========
+        function loadScores() {
+            const savedScores = localStorage.getItem('tictactoe_scores');
+            if (savedScores) {
+                scores = JSON.parse(savedScores);
+                document.getElementById('scoreX').textContent = scores.X;
+                document.getElementById('scoreO').textContent = scores.O;
+            }
+        }
+
+        function saveScores() {
+            localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
+        }
+
+        // ========== BOARD FUNCTIONS ==========
+        function createBoard() {
+            const boardElement = document.getElementById('board');
+            if (!boardElement) return;
+            
+            boardElement.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (!gameActive || quizMode || board[i]) {
+                    cell.classList.add('disabled');
+                }
+                cell.textContent = board[i];
+                cell.onclick = () => makeMove(i);
+                boardElement.appendChild(cell);
+            }
+        }
+
+        function makeMove(index) {
+            if (!gameActive || quizMode || board[index]) {
+                return;
+            }
+
+            board[index] = currentPlayer;
+            createBoard();
+
+            const winner = checkWinner();
+            if (winner) {
+                handleWin(winner);
+                return;
+            }
+
+            if (isBoardFull()) {
+                handleDraw();
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateGameStatus();
+        }
+
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6] // Diagonals
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                    return board[a];
+                }
+            }
+            return null;
+        }
+
+        function isBoardFull() {
+            return board.every(cell => cell !== null);
+        }
+
+        function handleWin(winner) {
+            gameActive = false;
+            scores[winner]++;
+            saveScores();
+            updateScoreboard();
+            
+            const loser = winner === 'X' ? 'O' : 'X';
+            document.getElementById('gameStatus').innerHTML = `🎉 Player ${winner} wins! 🎉<br>❌ Player ${loser} must complete the quiz!`;
+            showQuiz();
+        }
+
+        function handleDraw() {
+            gameActive = false;
+            document.getElementById('gameStatus').textContent = "🤝 It's a draw! Starting new round...";
+            setTimeout(() => resetRound(), 2000);
+        }
+
+        function updateScoreboard() {
+            document.getElementById('scoreX').textContent = scores.X;
+            document.getElementById('scoreO').textContent = scores.O;
+        }
+
+        function updateGameStatus() {
+            if (gameActive && !quizMode) {
+                document.getElementById('gameStatus').textContent = `🎯 Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        // ========== QUIZ FUNCTIONS ==========
+        function showQuiz() {
+            quizMode = true;
+            currentQuestions = getRandomQuestions(5);
+            userAnswers = new Array(5).fill(null);
+            quizSubmitted = false;
+            renderQuiz();
+            document.getElementById('quizOverlay').style.display = 'flex';
+        }
+
+        function renderQuiz() {
+            const quizContainer = document.getElementById('quizQuestions');
+            if (!quizContainer) return;
+            
+            quizContainer.innerHTML = '';
+
+            currentQuestions.forEach((q, idx) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <div class="option" onclick="selectAnswer(${idx}, ${optIdx})">
+                            ${String.fromCharCode(65+optIdx)}. ${opt}
+                        </div>
+                    `;
+                });
+                
+                questionDiv.innerHTML = `
+                    <div class="question-text"><strong>Question ${idx + 1}:</strong> ${q.text}</div>
+                    ${optionsHtml}
+                    <div class="explanation" id="exp-${idx}"></div>
+                `;
+                
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        function selectAnswer(questionIndex, optionIndex) {
+            if (quizSubmitted) return;
+            userAnswers[questionIndex] = optionIndex;
+            
+            // Update UI to show selected
+            const questionDiv = document.querySelectorAll('.question')[questionIndex];
+            if (questionDiv) {
+                const options = questionDiv.querySelectorAll('.option');
+                options.forEach(opt => opt.classList.remove('selected'));
+                if (options[optionIndex]) {
+                    options[optionIndex].classList.add('selected');
+                }
+            }
+        }
+
+        function submitQuiz() {
+            if (quizSubmitted) return;
+            
+            // Check if all questions are answered
+            for (let i = 0; i < userAnswers.length; i++) {
+                if (userAnswers[i] === null) {
+                    alert(`⚠️ Please answer question ${i + 1} before submitting!`);
+                    return;
+                }
+            }
+            
+            quizSubmitted = true;
+            let correctCount = 0;
+            
+            currentQuestions.forEach((q, idx) => {
+                const isCorrect = userAnswers[idx] === q.correct;
+                if (isCorrect) correctCount++;
+                
+                const explanationDiv = document.getElementById(`exp-${idx}`);
+                if (explanationDiv) {
+                    explanationDiv.style.display = 'block';
+                    explanationDiv.innerHTML = isCorrect ? 
+                        `✅ <strong>Correct!</strong> ${q.explanation}` : 
+                        `❌ <strong>Wrong!</strong> Correct answer: ${q.options[q.correct]}. ${q.explanation}`;
+                }
+            });
+            
+            const submitBtn = document.getElementById('submitQuiz');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = `📊 Score: ${correctCount}/5 - Click Close to Continue`;
+            }
+        }
+
+        function closeQuiz() {
+            document.getElementById('quizOverlay').style.display = 'none';
+            resetRound();
+        }
+
+        // ========== RESET FUNCTIONS ==========
+        function resetRound() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            gameActive = true;
+            quizMode = false;
+            createBoard();
+            updateGameStatus();
+        }
+
+        function resetGame() {
+            scores = { X: 0, O: 0 };
+            saveScores();
+            resetRound();
+            updateScoreboard();
+            document.getElementById('gameStatus').textContent = "🎯 Player X's turn";
+        }
+
+        // ========== INITIALIZATION ==========
+        function init() {
+            loadScores();
+            createBoard();
+            updateGameStatus();
+            
+            const submitBtn = document.getElementById('submitQuiz');
+            if (submitBtn) {
+                submitBtn.onclick = submitQuiz;
+            }
+        }
+
+        // Make functions global for onclick handlers
+        window.selectAnswer = selectAnswer;
+        window.closeQuiz = closeQuiz;
+        window.resetGame = resetGame;
+        window.submitQuiz = submitQuiz;
+
+        // Start the game when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
