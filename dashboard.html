@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Dashboard - Interview Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1917;
+      --muted: #6d6864;
+      --paper: #f8f4ed;
+      --panel: #fffdf9;
+      --line: #ddd6cb;
+      --accent: #ba4b31;
+      --accent-soft: #faede9;
+      --ok: #2f7d3c;
+      --ok-soft: #edf8ef;
+      --font-display: "DM Serif Display", Georgia, serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: linear-gradient(150deg, #fbf7f1 0%, #f4eee4 45%, #efe8dd 100%);
+      padding: 1.25rem;
+    }
+
+    .dashboard-shell {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      margin-bottom: 0.8rem;
+    }
+
+    .back-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.2rem;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+      margin-bottom: 1rem;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.45rem;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4.2vw, 2.5rem);
+      margin-bottom: 0.8rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffefc;
+      padding: 0.8rem;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.35rem;
+    }
+
+    .summary-value {
+      font-size: clamp(1.25rem, 3.3vw, 1.8rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 0.55rem 0.95rem;
+      font: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      border-color: #b9ab9a;
+    }
+
+    .modules-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .module-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.95rem;
+      box-shadow: 0 7px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .module-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .module-name {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .badge {
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border: 1px solid var(--line);
+    }
+
+    .badge.done {
+      background: var(--ok-soft);
+      border-color: #add8b4;
+      color: var(--ok);
+    }
+
+    .badge.pending {
+      background: var(--accent-soft);
+      border-color: #efc5b9;
+      color: var(--accent);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.55rem;
+      color: var(--muted);
+      font-size: 0.87rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #efe8de;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #e29a80 0%, #be4a2b 100%);
+      transition: width 0.3s ease;
+    }
+
+    .progress-label {
+      margin-top: 0.35rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: right;
+    }
+
+    @media (max-width: 740px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard-shell">
+    <div class="top-nav">
+      <a class="back-link" href="modules.html">Back to modules</a>
+    </div>
+
+    <section class="hero">
+      <p class="eyebrow">Feature 10</p>
+      <h1>Progress Dashboard</h1>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <p class="summary-label">Completed Modules</p>
+          <p class="summary-value" id="completedModules">0/0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Total Attempts</p>
+          <p class="summary-value" id="totalAttempts">0</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Average Score</p>
+          <p class="summary-value" id="averageScore">0%</p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="refreshDashboardButton" type="button">Refresh</button>
+      </div>
+    </section>
+
+    <section class="modules-grid" id="modulesGrid"></section>
+  </main>
+
+  <script type="module">
+    import {
+      getAllModuleProgress,
+      getDashboardSummary,
+      getScorePercent
+    } from "./scripts/storage.js";
+
+    const completedModulesEl = document.getElementById("completedModules");
+    const totalAttemptsEl = document.getElementById("totalAttempts");
+    const averageScoreEl = document.getElementById("averageScore");
+    const modulesGridEl = document.getElementById("modulesGrid");
+    const refreshButton = document.getElementById("refreshDashboardButton");
+
+    function renderDashboard() {
+      const moduleProgress = getAllModuleProgress();
+      const summary = getDashboardSummary(moduleProgress);
+
+      completedModulesEl.textContent = `${summary.completedModules}/${summary.totalModules}`;
+      totalAttemptsEl.textContent = String(summary.totalAttempts);
+      averageScoreEl.textContent = `${summary.averageScorePercent}%`;
+
+      modulesGridEl.innerHTML = moduleProgress
+        .map((moduleItem) => {
+          const percent = getScorePercent(moduleItem);
+          const scoreText =
+            moduleItem.maxScore > 0
+              ? `${moduleItem.score}/${moduleItem.maxScore}`
+              : moduleItem.score > 0
+              ? String(moduleItem.score)
+              : "No score";
+          const completionText = moduleItem.completed ? "Completed" : "In Progress";
+
+          return `
+            <article class="module-card">
+              <div class="module-top">
+                <h2 class="module-name">${moduleItem.title}</h2>
+                <span class="badge ${moduleItem.completed ? "done" : "pending"}">${completionText}</span>
+              </div>
+
+              <div class="module-meta">
+                <span>Score: ${scoreText}</span>
+                <span>Attempts: ${moduleItem.attempts}</span>
+              </div>
+
+              <div class="progress-track">
+                <div class="progress-fill" style="width: ${percent}%"></div>
+              </div>
+              <div class="progress-label">${percent}% progress</div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    refreshButton.addEventListener("click", renderDashboard);
+    window.addEventListener("storage", renderDashboard);
+    renderDashboard();
+  </script>
+</body>
+</html>
