@@ -1,130 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Feedback</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback System - Interview Arcade</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-body {
-  background: #f4f6fb;
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
+        .feedback-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-.container {
-  width: 600px;
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
+        /* Main Container */
+        .feedback-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
 
-h2 {
-  margin-bottom: 15px;
-  color: #333;
-}
+        /* Header */
+        .feedback-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
 
-.stars {
-  display: flex;
-  gap: 8px;
-  font-size: 28px;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
+        .feedback-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
 
-.star {
-  color: #ddd;
-  transition: 0.2s;
-}
+        .feedback-header p {
+            opacity: 0.9;
+        }
 
-.star.active {
-  color: #f59e0b;
-}
+        /* Form Section */
+        .form-section {
+            padding: 30px;
+        }
 
-textarea {
-  width: 100%;
-  height: 80px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  margin-top: 10px;
-}
+        .form-group {
+            margin-bottom: 25px;
+        }
 
-select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 10px;
-  border: 1px solid #ddd;
-}
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
 
-button {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            gap: 10px;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
 
-button:hover {
-  background: #4338ca;
-}
+        .star-rating input {
+            display: none;
+        }
 
-.summary {
-  margin-top: 25px;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
-}
+        .star-rating label {
+            font-size: 40px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
 
-.comment {
-  background: #f1f3f6;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-</style>
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffc107;
+        }
+
+        /* Module Ratings */
+        .module-ratings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .module-rating-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .module-rating-item:last-child {
+            border-bottom: none;
+        }
+
+        .module-name {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .module-stars {
+            display: flex;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .module-stars .star {
+            font-size: 20px;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+
+        .module-stars .star.active {
+            color: #ffc107;
+        }
+
+        .module-stars:hover .star,
+        .module-stars:hover .star ~ .star {
+            color: #ffc107;
+        }
+
+        /* Comment Input */
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .summary-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .summary-header h2 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .star-display {
+            color: #ffc107;
+            font-size: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* Feedback List */
+        .feedback-list {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .feedback-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .feedback-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .feedback-rating {
+            color: #ffc107;
+            font-size: 18px;
+        }
+
+        .feedback-date {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .feedback-comment {
+            color: #555;
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .feedback-modules {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .module-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        .no-feedback {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+
+        /* Delete Button */
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Clear All Button */
+        .clear-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .form-section, .feedback-list {
+                padding: 20px;
+            }
+            
+            .star-rating label {
+                font-size: 30px;
+            }
+            
+            .module-rating-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="feedback-wrapper">
+        <!-- Feedback Form -->
+        <div class="feedback-container">
+            <div class="feedback-header">
+                <h1>📝 Share Your Feedback</h1>
+                <p>Help us improve your learning experience</p>
+            </div>
 
-<div class="container">
-  <h2>Give Your Feedback</h2>
+            <div class="form-section">
+                <form id="feedbackForm">
+                    <!-- Overall Rating -->
+                    <div class="form-group">
+                        <label>Overall Platform Rating ⭐</label>
+                        <div class="star-rating" id="starRating">
+                            <input type="radio" name="rating" value="5" id="star5">
+                            <label for="star5">★</label>
+                            <input type="radio" name="rating" value="4" id="star4">
+                            <label for="star4">★</label>
+                            <input type="radio" name="rating" value="3" id="star3">
+                            <label for="star3">★</label>
+                            <input type="radio" name="rating" value="2" id="star2">
+                            <label for="star2">★</label>
+                            <input type="radio" name="rating" value="1" id="star1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
 
-  <div class="stars" id="stars"></div>
+                    <!-- Module Ratings -->
+                    <div class="form-group">
+                        <label>Rate Individual Modules (Optional)</label>
+                        <div class="module-ratings" id="moduleRatings">
+                            <!-- Dynamic module list will be loaded here -->
+                        </div>
+                    </div>
 
-  <select id="module">
-    <option value="general">General Platform</option>
-    <option value="tictactoe">Tic Tac Toe</option>
-    <option value="aptitude">Aptitude</option>
-    <option value="dsa-match">DSA Match</option>
-    <option value="dsa-match">Debug the code</option>
-    <option value="dsa-match">Progress Dashboard</option>
-    
-  </select>
+                    <!-- Comment -->
+                    <div class="form-group">
+                        <label>Your Comment</label>
+                        <textarea class="comment-input" id="comment" rows="4" 
+                                  placeholder="Tell us what you think about the platform..."></textarea>
+                    </div>
 
-  <textarea id="comment" placeholder="Write your feedback..."></textarea>
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">Submit Feedback ✨</button>
+                </form>
+            </div>
+        </div>
 
-  <button onclick="submitFeedback()">Submit</button>
+        <!-- Feedback Summary -->
+        <div class="summary-section">
+            <div class="summary-header">
+                <div class="header-actions">
+                    <h2>📊 Community Feedback Summary</h2>
+                    <button class="clear-btn" onclick="clearAllFeedback()">Clear All Feedback</button>
+                </div>
+            </div>
 
-  <div class="summary">
-    <h3>Feedback Summary</h3>
-    <p id="avgRating">Average Rating: -</p>
-    <div id="recentComments"></div>
-  </div>
-</div>
+            <!-- Stats Cards -->
+            <div class="stats-cards" id="statsCards">
+                <!-- Dynamic stats will be loaded here -->
+            </div>
 
-<script defer src="../games/feedback.js"></script>
+            <!-- Feedback List -->
+            <div class="feedback-list" id="feedbackList">
+                <!-- Dynamic feedback list will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../games/feedback.js"></script>
 </body>
 </html>
