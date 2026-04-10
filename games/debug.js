@@ -1,12 +1,15 @@
 const codeBox = document.getElementById("codeBox");
 const explanationEl = document.getElementById("explanation");
-const fixInput = document.getElementById("fixInput");
+const hintEl = document.getElementById("hint");
 
-let selectedLine = null;
+let currentLang = "js";
+let snippets = [];
 let index = 0;
+let selectedLine = null;
 let score = 0;
+let hintStep = 0;
 
-// 5 BUG SNIPPETS
+// DATA
 const allSnippets = {
   js: [
     {
@@ -17,36 +20,19 @@ const allSnippets = {
         "}"
       ],
       bug: 1,
-      exp: "Use '==' or '===' instead of '='"
-    },
-    {
-      code: [
-        "function add(a,b){",
-        " return a + b",
-        "}",
-        "console.log(add(2));"
-      ],
-      bug: 3,
-      exp: "Missing second argument"
+      hints: ["Check condition", "Assignment vs comparison"],
+      exp: "Use == or === instead of ="
     }
   ],
 
   python: [
     {
       code: [
-        "def func():",
-        " print('Hello')",
-        "func"
-      ],
-      bug: 2,
-      exp: "Function not called properly → use func()"
-    },
-    {
-      code: [
         "for i in range(5)",
         " print(i)"
       ],
       bug: 0,
+      hints: ["Look at loop syntax", "Something missing at end"],
       exp: "Missing ':' in for loop"
     }
   ],
@@ -60,62 +46,73 @@ const allSnippets = {
         "}"
       ],
       bug: 1,
-      exp: "Comparing int with string"
-    },
-    {
-      code: [
-        "public static void main(String[] args){",
-        " System.out.println('Hello')",
-        "}"
-      ],
-      bug: 1,
-      exp: "Use double quotes in Java"
+      hints: ["Check data types", "int vs string"],
+      exp: "Type mismatch"
     }
   ]
 };
+
+function changeLanguage() {
+  currentLang = document.getElementById("languageSelect").value;
+  snippets = allSnippets[currentLang];
+  index = 0;
+  score = 0;
+  loadSnippet();
+}
+
 function loadSnippet() {
   if (index >= snippets.length) {
     codeBox.innerHTML = `<h3>Score: ${score}/${snippets.length}</h3>`;
-    explanationEl.innerText = "Completed!";
     return;
   }
 
+  const s = snippets[index];
+
   codeBox.innerHTML = "";
   explanationEl.innerText = "";
-  fixInput.value = "";
+  hintEl.innerText = "";
+  hintStep = 0;
 
-  snippets[index].code.forEach((line, i) => {
+  s.code.forEach((line, i) => {
     const div = document.createElement("div");
     div.classList.add("line");
     div.innerText = line;
 
-    div.onclick = () => selectLine(i, div);
+    div.onclick = () => {
+      document.querySelectorAll(".line").forEach(l => l.classList.remove("selected"));
+      div.classList.add("selected");
+      selectedLine = i;
+    };
 
     codeBox.appendChild(div);
   });
 }
 
-function selectLine(i, el) {
-  document.querySelectorAll(".line").forEach(l => l.classList.remove("selected"));
-  el.classList.add("selected");
-  selectedLine = i;
+function showHint() {
+  const s = snippets[index];
+  if (hintStep < s.hints.length) {
+    hintEl.innerText = "Hint: " + s.hints[hintStep];
+    hintStep++;
+  } else {
+    hintEl.innerText = "No more hints 😄";
+  }
 }
 
 function submitAnswer() {
-  const correctLine = snippets[index].bug;
-  const userFix = fixInput.value.toLowerCase();
-
+  const s = snippets[index];
   const lines = document.querySelectorAll(".line");
 
-  if (selectedLine === correctLine) {
+  if (selectedLine === s.bug) {
     lines[selectedLine].classList.add("correct");
     score++;
-  } else if (selectedLine !== null) {
-    lines[selectedLine].classList.add("wrong");
-    lines[correctLine].classList.add("correct");
+  } else {
+    if (selectedLine !== null) {
+      lines[selectedLine].classList.add("wrong");
+    }
+    lines[s.bug].classList.add("correct");
   }
 
-  explanationEl.innerText = "Explanation: " + snippets[index].exp;
+  explanationEl.innerText = "Explanation: " + s.exp;
 
   setTimeout(() => {
     index++;
@@ -125,4 +122,4 @@ function submitAnswer() {
 }
 
 // INIT
-loadSnippet();
+changeLanguage();
