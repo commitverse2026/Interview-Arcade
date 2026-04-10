@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dev Riddles: Guess the Tech Concept</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Roboto, 'Fira Code', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* main game card */
+        .riddle-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        /* header with stats */
+        .game-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e7ff;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 0.8rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-top: 5px;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        /* riddle image area */
+        .riddle-image-frame {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            text-align: center;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .riddle-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 1rem;
+            display: inline-block;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .riddle-emoji {
+            font-size: 8rem;
+            text-align: center;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .riddle-description {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .riddle-img:hover {
+            transform: scale(1.02);
+        }
+
+        /* image controls */
+        .image-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: rgba(0,0,0,0.9);
+            transform: scale(1.05);
+        }
+
+        /* progress & hints */
+        .riddle-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .question-counter {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .hint-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .hint-btn {
+            background: #f59e0b;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .hint-btn:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .hint-text {
+            background: #fef3c7;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #92400e;
+            display: inline-block;
+        }
+
+        /* guess input */
+        .guess-area {
+            margin: 1.5rem 0;
+        }
+
+        .guess-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        #guessInput {
+            flex: 3;
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 14px 20px;
+            font-size: 1rem;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #guessInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin: 15px 0 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .feedback.wrong {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .feedback.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        /* action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #64748b, #475569);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            margin-top: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 15px 0;
+        }
+
+        .performance-message {
+            font-size: 1rem;
+            color: #64748b;
+            margin: 10px 0;
+        }
+
+        .stats-detail {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .stats-detail p {
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .play-again {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .riddle-container {
+                padding: 1.5rem;
+            }
+            .guess-input-group {
+                flex-direction: column;
+            }
+            .guess-input-group button {
+                width: 100%;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .game-header {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .riddle-emoji {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="riddle-container" id="riddleContainer">
+    <div class="game-header">
+        <div class="stat-card">
+            <div class="stat-label">🎯 Score</div>
+            <div class="stat-value"><span id="scoreValue">0</span>/<span id="totalRiddles">0</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">🔥 Streak</div>
+            <div class="stat-value"><span id="streakValue">0</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">⏱️ Time</div>
+            <div class="stat-value"><span id="timerValue">00:00</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">💡 Hints Used</div>
+            <div class="stat-value"><span id="hintsUsedValue">0</span></div>
+        </div>
+    </div>
+
+    <div class="riddle-progress">
+        <span class="question-counter">🔍 Riddle <span id="currentIdxDisplay">1</span></span>
+        <div class="hint-section">
+            <button id="hintBtn" class="hint-btn">💡 Get Hint</button>
+            <span id="hintDisplay" class="hint-text hidden"></span>
+        </div>
+    </div>
+
+    <div class="riddle-image-frame">
+        <div id="riddleVisual" class="riddle-emoji">🤔</div>
+        <div class="image-controls">
+            <button id="zoomInBtn" class="icon-btn" title="Zoom In">🔍+</button>
+            <button id="zoomOutBtn" class="icon-btn" title="Zoom Out">🔍-</button>
+        </div>
+    </div>
+
+    <div class="guess-area">
+        <div class="guess-input-group">
+            <input type="text" id="guessInput" placeholder="Type your answer... (e.g., Web Crawling, Git, Docker)" autocomplete="off">
+            <button id="submitGuessBtn">🔍 CHECK ANSWER</button>
+        </div>
+        <div id="feedbackMsg" class="feedback"></div>
+    </div>
+
+    <div class="action-buttons">
+        <button id="nextRiddleBtn" class="secondary-btn" disabled>⏩ Next Riddle →</button>
+        <button id="skipRiddleBtn" class="secondary-btn">⏭️ Skip (-1 point)</button>
+        <button id="resetGameBtn" class="secondary-btn">🔄 Reset Game</button>
+    </div>
+</div>
+
+<script src="../data/riddles.js"></script>
+<script src="../games/riddles.js"></script>
+</body>
+</html>
