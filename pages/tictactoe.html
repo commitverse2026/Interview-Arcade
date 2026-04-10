@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe + OOP Quiz — Interview Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #111010;
+      --ink-muted: #6b6b6b;
+      --paper: #faf9f6;
+      --paper-off: #f1efe8;
+      --accent: #c84b2f;
+      --accent-soft: #f5ece8;
+      --rule: #d8d6cf;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --cell-size: min(28vw, 110px);
+      --max: 640px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      background: var(--paper);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-brand span { color: var(--accent); }
+    .nav-back {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      text-decoration: none;
+    }
+    .nav-back:hover { color: var(--accent); }
+
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 5rem 1.5rem 3rem;
+    }
+
+    .page-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .sub {
+      font-size: 0.92rem;
+      font-weight: 300;
+      color: var(--ink-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+    }
+    .score-card {
+      background: var(--paper-off);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+    }
+    .score-card .label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .score-card .val {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      line-height: 1.1;
+    }
+    .score-card .quiz {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 0.25rem;
+    }
+
+    .status {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      min-height: 1.5em;
+    }
+    .status .turn-x { color: var(--accent); }
+    .status .turn-o { color: #1a4a82; }
+
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, var(--cell-size));
+      grid-template-rows: repeat(3, var(--cell-size));
+      gap: 8px;
+      background: var(--rule);
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .cell {
+      background: var(--paper);
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 8vw, 2.75rem);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      color: var(--ink);
+    }
+    .cell:hover:not(:disabled) { background: var(--accent-soft); }
+    .cell:disabled { cursor: default; opacity: 0.95; }
+    .cell.x { color: var(--accent); }
+    .cell.o { color: #1a4a82; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 3px;
+      border: 1px solid var(--rule);
+      background: var(--ink);
+      color: var(--paper);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent); }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+    }
+    .btn-outline:hover { border-color: var(--ink-muted); color: var(--accent); background: var(--paper-off); }
+
+    /* Quiz overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 16, 16, 0.45);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      animation: fadeIn 0.2s ease;
+    }
+    .overlay.open { display: flex; }
+
+    .quiz-panel {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+      animation: slideUp 0.25s ease;
+    }
+    .quiz-head {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--rule);
+      background: var(--paper-off);
+    }
+    .quiz-head h2 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+    .quiz-meta {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+    }
+    .quiz-body { padding: 1.5rem; }
+    .quiz-q {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .opt {
+      text-align: left;
+      padding: 12px 14px;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: var(--paper);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .opt:hover:not(:disabled) {
+      border-color: var(--ink-muted);
+      background: var(--paper-off);
+    }
+    .opt:disabled { cursor: default; }
+    .opt.wrong {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .opt.correct {
+      border-color: #2a6b2a;
+      background: #e8f5e8;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.88rem;
+      background: var(--accent-soft);
+      border-radius: 4px;
+      border-left: 3px solid var(--accent);
+      display: none;
+    }
+    .feedback.visible { display: block; }
+
+    .quiz-footer {
+      margin-top: 1.25rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .is-hidden { display: none !important; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-brand">Interview <span>Arcade</span></a>
+    <a href="../modules.html" class="nav-back">← Modules</a>
+  </nav>
+
+  <main>
+    <div class="page-eyebrow">Module 01 · Game</div>
+    <h1>Tic Tac Toe + OOP Quiz</h1>
+    <p class="sub">Player X and Player O take turns. If you lose a round, answer five OOP questions before the next round. Draws skip the quiz.</p>
+
+    <div class="score-row">
+      <div class="score-card">
+        <div class="label">Player X · wins</div>
+        <div class="val" id="scoreX">0</div>
+        <div class="quiz" id="quizX">Quiz correct: 0</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Player O · wins</div>
+        <div class="val" id="scoreO">0</div>
+        <div class="quiz" id="quizO">Quiz correct: 0</div>
+      </div>
+    </div>
+
+    <p class="status" id="status" aria-live="polite"></p>
+
+    <div class="board-wrap">
+      <div class="board" id="board" role="grid" aria-label="Tic tac toe board"></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btnNextRound" disabled>Next round</button>
+    </div>
+  </main>
+
+  <div class="overlay" id="quizOverlay" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+    <div class="quiz-panel">
+      <div class="quiz-head">
+        <h2 id="quizTitle">OOP challenge</h2>
+        <p class="quiz-meta" id="quizMeta"></p>
+      </div>
+      <div class="quiz-body">
+        <p class="quiz-q" id="quizQuestion"></p>
+        <div class="options" id="quizOptions"></div>
+        <div class="feedback" id="quizFeedback" role="status"></div>
+        <div class="quiz-footer">
+          <button type="button" class="btn btn-outline is-hidden" id="quizContinue">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../data/questions.js"></script>
+  <script src="../games/tictactoe.js"></script>
+</body>
+</html>
