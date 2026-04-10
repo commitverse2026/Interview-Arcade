@@ -22,6 +22,47 @@ const allSnippets = {
       bug: 1,
       hints: ["Check condition", "Assignment vs comparison"],
       exp: "Use == or === instead of ="
+    },
+    {
+      code: [
+        "function add(a,b){",
+        " return a + b",
+        "}",
+        "console.log(add(2));"
+      ],
+      bug: 3,
+      hints: ["Function parameters", "Missing argument"],
+      exp: "Function expects 2 arguments"
+    },
+    {
+      code: [
+        "let arr = [1,2,3];",
+        "for(let i=0; i<=arr.length; i++){",
+        " console.log(arr[i]);",
+        "}"
+      ],
+      bug: 1,
+      hints: ["Loop condition", "Array length"],
+      exp: "Use < instead of <="
+    },
+    {
+      code: [
+        "const obj = {name: 'Aarya'};",
+        "console.log(obj.age.toString());"
+      ],
+      bug: 1,
+      hints: ["Property access", "Undefined value"],
+      exp: "obj.age is undefined"
+    },
+    {
+      code: [
+        "let a = 5;",
+        "let b = '10';",
+        "console.log(a + b);"
+      ],
+      bug: 2,
+      hints: ["Type coercion", "String + number"],
+      exp: "Results in string concatenation"
     }
   ],
 
@@ -32,8 +73,46 @@ const allSnippets = {
         " print(i)"
       ],
       bug: 0,
-      hints: ["Look at loop syntax", "Something missing at end"],
-      exp: "Missing ':' in for loop"
+      hints: ["Loop syntax", "Missing symbol"],
+      exp: "Missing ':'"
+    },
+    {
+      code: [
+        "def func():",
+        " print('Hello')",
+        "func"
+      ],
+      bug: 2,
+      hints: ["Function call", "Syntax"],
+      exp: "Use func() to call function"
+    },
+    {
+      code: [
+        "x = [1,2,3]",
+        "print(x[3])"
+      ],
+      bug: 1,
+      hints: ["Indexing", "List size"],
+      exp: "Index out of range"
+    },
+    {
+      code: [
+        "if True",
+        " print('Yes')"
+      ],
+      bug: 0,
+      hints: ["Condition syntax", "Missing something"],
+      exp: "Missing ':'"
+    },
+    {
+      code: [
+        "a = '5'",
+        "b = 2",
+        "print(a + b)"
+      ],
+      bug: 2,
+      hints: ["Data types", "String + int"],
+      exp: "TypeError due to mismatch"
     }
   ],
 
@@ -46,8 +125,46 @@ const allSnippets = {
         "}"
       ],
       bug: 1,
-      hints: ["Check data types", "int vs string"],
-      exp: "Type mismatch"
+      hints: ["Type mismatch", "int vs string"],
+      exp: "Cannot compare int with string"
+    },
+    {
+      code: [
+        "public static void main(String[] args){",
+        " System.out.println('Hello')",
+        "}"
+      ],
+      bug: 1,
+      hints: ["Syntax", "End of statement"],
+      exp: "Missing semicolon"
+    },
+    {
+      code: [
+        "int arr[] = {1,2,3};",
+        "System.out.println(arr[3]);"
+      ],
+      bug: 1,
+      hints: ["Array index", "Size"],
+      exp: "Index out of bounds"
+    },
+    {
+      code: [
+        "String s = null;",
+        "System.out.println(s.length());"
+      ],
+      bug: 1,
+      hints: ["Null value", "Method call"],
+      exp: "NullPointerException"
+    },
+    {
+      code: [
+        "int a = 10;",
+        "int b = 0;",
+        "System.out.println(a/b);"
+      ],
+      bug: 2,
+      hints: ["Math operation", "Division"],
+      exp: "Division by zero"
     }
   ]
 };
