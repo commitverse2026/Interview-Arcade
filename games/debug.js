@@ -7,63 +7,72 @@ let index = 0;
 let score = 0;
 
 // 5 BUG SNIPPETS
-const snippets = [
-  {
-    code: [
-      "let x = 10;",
-      "if(x = 5){",
-      "  console.log('Equal');",
-      "}"
-    ],
-    bug: 1,
-    fix: "== or ===",
-    exp: "Assignment operator '=' used instead of comparison."
-  },
-  {
-    code: [
-      "function add(a, b){",
-      "  return a + b",
-      "}",
-      "console.log(add(2));"
-    ],
-    bug: 3,
-    fix: "pass two arguments",
-    exp: "Function expects 2 parameters but only one given."
-  },
-  {
-    code: [
-      "arr = [1,2,3];",
-      "for(let i=0; i<=arr.length; i++){",
-      " console.log(arr[i]);",
-      "}"
-    ],
-    bug: 1,
-    fix: "< instead of <=",
-    exp: "Loop exceeds array length."
-  },
-  {
-    code: [
-      "def func():",
-      " print('Hello')",
-      "func"
-    ],
-    bug: 2,
-    fix: "func()",
-    exp: "Function is not called properly."
-  },
-  {
-    code: [
-      "int x = 5;",
-      "if(x == '5'){",
-      "System.out.println('Equal');",
-      "}"
-    ],
-    bug: 1,
-    fix: "type mismatch",
-    exp: "Comparing int with string."
-  }
-];
+const allSnippets = {
+  js: [
+    {
+      code: [
+        "let x = 10;",
+        "if(x = 5){",
+        " console.log('Equal');",
+        "}"
+      ],
+      bug: 1,
+      exp: "Use '==' or '===' instead of '='"
+    },
+    {
+      code: [
+        "function add(a,b){",
+        " return a + b",
+        "}",
+        "console.log(add(2));"
+      ],
+      bug: 3,
+      exp: "Missing second argument"
+    }
+  ],
 
+  python: [
+    {
+      code: [
+        "def func():",
+        " print('Hello')",
+        "func"
+      ],
+      bug: 2,
+      exp: "Function not called properly → use func()"
+    },
+    {
+      code: [
+        "for i in range(5)",
+        " print(i)"
+      ],
+      bug: 0,
+      exp: "Missing ':' in for loop"
+    }
+  ],
+
+  java: [
+    {
+      code: [
+        "int x = 5;",
+        "if(x == '5'){",
+        " System.out.println('Equal');",
+        "}"
+      ],
+      bug: 1,
+      exp: "Comparing int with string"
+    },
+    {
+      code: [
+        "public static void main(String[] args){",
+        " System.out.println('Hello')",
+        "}"
+      ],
+      bug: 1,
+      exp: "Use double quotes in Java"
+    }
+  ]
+};
 function loadSnippet() {
   if (index >= snippets.length) {
     codeBox.innerHTML = `<h3>Score: ${score}/${snippets.length}</h3>`;
