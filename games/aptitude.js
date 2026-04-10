@@ -122,6 +122,14 @@
     var elapsedSec = state.totalStart === null ? 0 : Math.floor((Date.now() - state.totalStart) / 1000);
     $('resultTime').textContent = formatClock(elapsedSec);
 
+    if (typeof IAStorage !== 'undefined' && IAStorage.recordModule) {
+      IAStorage.recordModule('aptitude', {
+        addAttempts: 1,
+        addCompletions: 1,
+        scorePercent: pct
+      });
+    }
+
     showPanel('result');
   }
 

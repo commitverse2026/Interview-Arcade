@@ -169,6 +169,12 @@
           $('winBanner').hidden = false;
           $('finalAttempts').textContent = String(state.attempts);
           $('finalTime').textContent = formatTime(state.elapsedMs);
+          if (typeof IAStorage !== 'undefined' && IAStorage.recordModule) {
+            IAStorage.recordModule('memory', {
+              addCompletions: 1,
+              memoryAttempts: state.attempts
+            });
+          }
         }
         renderBoard();
       } else {
@@ -183,7 +189,14 @@
     }
   }
 
-  function newGame() {
+  function newGame(fromUserClick) {
+    if (
+      fromUserClick &&
+      typeof IAStorage !== 'undefined' &&
+      IAStorage.recordModule
+    ) {
+      IAStorage.recordModule('memory', { addAttempts: 1 });
+    }
     if (state.tickId !== null) {
       window.clearInterval(state.tickId);
       state.tickId = null;
@@ -201,8 +214,10 @@
   }
 
   function init() {
-    $('btnNew').addEventListener('click', newGame);
-    newGame();
+    $('btnNew').addEventListener('click', function () {
+      newGame(true);
+    });
+    newGame(false);
   }
 
   if (document.readyState === 'loading') {

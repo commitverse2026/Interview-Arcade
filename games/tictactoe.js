@@ -262,6 +262,9 @@
   }
 
   function nextRound() {
+    if (typeof IAStorage !== 'undefined' && IAStorage.recordModule) {
+      IAStorage.recordModule('tictactoe', { addAttempts: 1, addCompletions: 1 });
+    }
     state.board = Array(9).fill('');
     state.current = 'X';
     state.gameOver = false;
