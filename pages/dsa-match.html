@@ -114,5 +114,285 @@ button:hover {
 </div>
 
 <script defer src="../games/dsa-match.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DSA Match the Following</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6fb;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        header {
+            background: #3a3a3a;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+            color: #222;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+        .match-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 860px;
+            margin: 0 auto 28px auto;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .column-header {
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .match-item {
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 2px solid #d0d7e8;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #333;
+            transition: all 0.2s ease;
+            text-align: center;
+            user-select: none;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .match-item:hover { border-color: #6c8cf5; background: #eef1ff; }
+        .match-item.selected { border-color: #4a6cf7; background: #dce4ff; font-weight: 600; }
+        .match-item.matched-pending { border-color: #a0a0c8; background: #f0f0ff; color: #555; }
+        .match-item.correct { border-color: #27ae60; background: #eafaf1; color: #1e8449; font-weight: 600; }
+        .match-item.incorrect { border-color: #e74c3c; background: #fdf0ef; color: #c0392b; }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 11px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #submit-btn { background: #4a6cf7; color: white; }
+        #submit-btn:hover { background: #3558e0; }
+        #reset-btn { background: #e0e0e0; color: #333; }
+        #reset-btn:hover { background: #c8c8c8; }
+        #score-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            min-height: 36px;
+        }
+        .hint {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #888;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<header>DSA Learning Platform</header>
+<h2>Match the Following</h2>
+<p class="subtitle">Click a term, then click its matching definition to pair them.</p>
+
+<div class="match-container">
+    <div class="column">
+        <div class="column-header">Terms</div>
+        <div id="term-col"></div>
+    </div>
+    <div class="column">
+        <div class="column-header">Definitions</div>
+        <div id="def-col"></div>
+    </div>
+</div>
+
+<div class="controls">
+    <button id="submit-btn">Submit</button>
+    <button id="reset-btn">Reset</button>
+</div>
+
+<div id="score-display"></div>
+<p class="hint">Correct matches turn green &middot; Incorrect matches turn red</p>
+
+<script>
+// ── Storage Handlers ──────────────────────────────────────────
+function saveData(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+function getData(key) {
+    return JSON.parse(localStorage.getItem(key));
+}
+
+// ── DSA Pairs Data ────────────────────────────────────────────
+const dsaPairs = [
+    { term: "Binary Search Tree",  definition: "Left child < parent < right child" },
+    { term: "Stack",               definition: "Last In First Out (LIFO)" },
+    { term: "Queue",               definition: "First In First Out (FIFO)" },
+    { term: "Linked List",         definition: "Nodes connected via pointers" },
+    { term: "Hash Map",            definition: "Key-value pairs with O(1) average access" },
+    { term: "Heap",                definition: "Complete binary tree with heap property" },
+    { term: "Graph",               definition: "Vertices connected by edges" },
+    { term: "Dynamic Programming", definition: "Solving problems using overlapping subproblems" },
+];
+
+// ── Game State ────────────────────────────────────────────────
+let selectedTerm = null;
+let selectedDef  = null;
+let matches      = {};
+let shuffledDefs = [];
+
+function shuffle(arr) {
+    return [...arr].sort(() => Math.random() - 0.5);
+}
+
+// ── Render ────────────────────────────────────────────────────
+function renderGame() {
+    const termCol = document.getElementById("term-col");
+    const defCol  = document.getElementById("def-col");
+    termCol.innerHTML = "";
+    defCol.innerHTML  = "";
+    matches      = {};
+    selectedTerm = null;
+    selectedDef  = null;
+    document.getElementById("score-display").textContent = "";
+
+    shuffledDefs = shuffle(dsaPairs.map((p, i) => ({ text: p.definition, originalIndex: i })));
+
+    dsaPairs.forEach((pair, i) => {
+        const el = document.createElement("div");
+        el.className     = "match-item term-item";
+        el.textContent   = pair.term;
+        el.dataset.index = i;
+        el.addEventListener("click", () => onTermClick(el, i));
+        termCol.appendChild(el);
+    });
+
+    shuffledDefs.forEach((def, i) => {
+        const el = document.createElement("div");
+        el.className        = "match-item def-item";
+        el.textContent      = def.text;
+        el.dataset.index    = i;
+        el.dataset.original = def.originalIndex;
+        el.addEventListener("click", () => onDefClick(el, def.originalIndex));
+        defCol.appendChild(el);
+    });
+}
+
+// ── Selection Logic ───────────────────────────────────────────
+function onTermClick(el, index) {
+    document.querySelectorAll(".term-item").forEach(e => {
+        if (!e.classList.contains("matched-pending")) e.classList.remove("selected");
+    });
+    selectedTerm = { el, index };
+    el.classList.add("selected");
+    tryPair();
+}
+
+function onDefClick(el, originalIndex) {
+    document.querySelectorAll(".def-item").forEach(e => {
+        if (!e.classList.contains("matched-pending")) e.classList.remove("selected");
+    });
+    selectedDef = { el, originalIndex };
+    el.classList.add("selected");
+    tryPair();
+}
+
+function tryPair() {
+    if (!selectedTerm || !selectedDef) return;
+
+    matches[selectedTerm.index] = selectedDef.originalIndex;
+
+    selectedTerm.el.classList.remove("selected");
+    selectedDef.el.classList.remove("selected");
+    selectedTerm.el.classList.add("matched-pending");
+    selectedDef.el.classList.add("matched-pending");
+
+    // Store cross-reference for result highlighting
+    selectedTerm.el.dataset.pairedDefOriginal = selectedDef.originalIndex;
+    selectedDef.el.dataset.pairedTermIndex    = selectedTerm.index;
+
+    selectedTerm = null;
+    selectedDef  = null;
+}
+
+// ── Submit ────────────────────────────────────────────────────
+function submitMatches() {
+    let score = 0;
+    const total = dsaPairs.length;
+
+    document.querySelectorAll(".term-item").forEach((termEl, i) => {
+        termEl.classList.remove("matched-pending", "correct", "incorrect");
+        if (matches[i] === i) {
+            score++;
+            termEl.classList.add("correct");
+        } else {
+            termEl.classList.add("incorrect");
+        }
+    });
+
+    document.querySelectorAll(".def-item").forEach((defEl) => {
+        defEl.classList.remove("matched-pending", "correct", "incorrect");
+        const originalIndex   = parseInt(defEl.dataset.original);
+        const pairedTermIndex = parseInt(defEl.dataset.pairedTermIndex);
+        if (!isNaN(pairedTermIndex) && originalIndex === pairedTermIndex) {
+            defEl.classList.add("correct");
+        } else {
+            defEl.classList.add("incorrect");
+        }
+    });
+
+    document.getElementById("score-display").textContent = `Score: ${score} / ${total}`;
+
+    saveData("dsa-match-score", score);
+    let scores = getData("scores") || {};
+    scores["dsa-match"] = score;
+    saveData("scores", scores);
+
+    if (score === total) {
+        let completed = getData("completed") || [];
+        if (!completed.includes("dsa-match")) completed.push("dsa-match");
+        saveData("completed", completed);
+    }
+}
+
+// ── Init ──────────────────────────────────────────────────────
+document.getElementById("submit-btn").addEventListener("click", submitMatches);
+document.getElementById("reset-btn").addEventListener("click", renderGame);
+renderGame();
+</script>
 </body>
 </html>

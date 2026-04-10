@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Resume Keyword Matcher | Smart Job Fit Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f7 0%, #d9e0e8 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* main container */
+        .matcher-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header area */
+        .header-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #1e3a5f;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0b2b3b, #1a4a6f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub {
+            color: #2c3e50;
+            font-size: 1rem;
+            max-width: 580px;
+            margin: 0 auto;
+            opacity: 0.8;
+        }
+
+        /* two column layout */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .control-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .resume-panel {
+            flex: 2;
+            min-width: 340px;
+            background: white;
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        /* form elements */
+        .field-group {
+            margin-bottom: 1.8rem;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.6rem;
+            color: #1e2f3e;
+            font-size: 0.9rem;
+            letter-spacing: -0.2px;
+        }
+
+        .role-select, select {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border-radius: 1.2rem;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .role-select:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+
+        .custom-role {
+            margin-top: 0.8rem;
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .custom-role input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border-radius: 1.2rem;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .custom-role button {
+            background: #2c7da0;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 1.2rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .custom-role button:hover {
+            background: #1f5e7a;
+            transform: scale(0.97);
+        }
+
+        textarea {
+            width: 100%;
+            height: 280px;
+            padding: 1rem;
+            border-radius: 1.2rem;
+            border: 1px solid #cbd5e1;
+            font-family: 'Menlo', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            resize: vertical;
+            background: #fefefe;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: #1e4a6b;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.6rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary:hover {
+            background: #0f3b56;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            border: none;
+            padding: 0.8rem 1.6rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        /* results area */
+        .score-card {
+            background: #f8fafc;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-left: 6px solid #2c7da0;
+        }
+
+        .percentage {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #0f3b56;
+            line-height: 1;
+        }
+
+        .match-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+        }
+
+        .missing-section {
+            margin-top: 1.8rem;
+        }
+
+        .missing-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .keyword-cloud {
+            background: #fff9ef;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid #ffe6c7;
+        }
+
+        .missing-badge {
+            display: inline-block;
+            background: #fde7da;
+            color: #c2410c;
+            padding: 0.4rem 0.9rem;
+            margin: 0.35rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.1s;
+            border-left: 3px solid #f97316;
+        }
+
+        .present-badge {
+            display: inline-block;
+            background: #e0f2e9;
+            color: #2b6e3c;
+            padding: 0.4rem 0.9rem;
+            margin: 0.35rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-left: 3px solid #2e7d32;
+        }
+
+        .info-note {
+            background: #eef2ff;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            margin-top: 1rem;
+            color: #334155;
+            text-align: center;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border-color: #e2e8f0;
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="matcher-container">
+    <div class="header-section">
+        <div class="badge">✨ AI keyword intelligence</div>
+        <h1>📄 Resume Keyword Matcher</h1>
+        <div class="sub">Paste your resume → see keyword match score → discover missing skills that recruiters look for</div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Left panel: role selection & controls -->
+        <div class="control-panel">
+            <div class="field-group">
+                <label>🎯 Select or type job role</label>
+                <select id="jobRoleSelect" class="role-select">
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Product Manager">Product Manager</option>
+                    <option value="UX/UI Designer">UX/UI Designer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                </select>
+                <div class="custom-role">
+                    <input type="text" id="customRoleInput" placeholder="e.g., ML Engineer, QA Lead..." autocomplete="off">
+                    <button id="applyCustomBtn">➕ Apply</button>
+                </div>
+                <div class="info-note" style="margin-top: 12px;">
+                    💡 Tip: type any role (e.g., "React Native Dev") and click Apply — keywords will load dynamically.
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="analyzeBtn" class="btn-primary">🔍 Analyze Match</button>
+                <button id="resetBtn" class="btn-secondary">🗑️ Clear resume</button>
+            </div>
+
+            <div class="info-note" style="margin-top: 20px;">
+                ⚡ Keyword sets are based on industry standard skills & tools for each role. Missing keywords help you tailor your resume.
+            </div>
+        </div>
+
+        <!-- Right panel: resume input & results -->
+        <div class="resume-panel">
+            <div class="field-group">
+                <label>📝 Paste your resume (plain text)</label>
+                <textarea id="resumeText" placeholder="Paste your resume content here...&#10;&#10;Example:&#10;Experienced Frontend Developer with React, TypeScript, Tailwind CSS, Redux, Jest, and Webpack. Strong background in responsive design and API integration."></textarea>
+            </div>
+
+            <!-- dynamic results section -->
+            <div id="resultsArea">
+                <div class="score-card">
+                    <div class="percentage" id="matchPercent">0%</div>
+                    <div class="match-label">Keyword Match Score</div>
+                    <div class="stats">
+                        <span>✅ Matched: <strong id="matchedCount">0</strong></span>
+                        <span>📋 Total keywords: <strong id="totalKeywordsCount">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="missing-section">
+                    <div class="missing-title">
+                        🔍 Missing keywords — add these to improve ATS score
+                        <span style="font-size:12px;">💡 (highlighted in orange)</span>
+                    </div>
+                    <div id="missingKeywordsContainer" class="keyword-cloud">
+                        <span style="color:#94a3b8;">No analysis yet. Paste resume & select a role → click analyze.</span>
+                    </div>
+                </div>
+
+                <div class="missing-section" style="margin-top: 12px;">
+                    <div class="missing-title">
+                        ✅ Present keywords (already in your resume)
+                    </div>
+                    <div id="presentKeywordsContainer" class="keyword-cloud" style="background:#f1f9f4;">
+                        <span style="color:#94a3b8;">Run analysis to see matched keywords.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- KNOWLEDGE BASE: keyword mapping for each role (rich & realistic) ----------
+    const ROLE_KEYWORDS_MAP = {
+        "Frontend Developer": [
+            "react", "vue", "angular", "html5", "css3", "javascript", "typescript", "redux", "context api",
+            "tailwind css", "sass", "bootstrap", "webpack", "vite", "jest", "react testing library", "cypress",
+            "responsive design", "cross-browser", "rest api", "graphql", "next.js", "accessibility", "git"
+        ],
+        "Backend Developer": [
+            "node.js", "python", "java", "spring boot", "django", "flask", "go", "c#", ".net core", "php",
+            "restful api", "graphql", "microservices", "sql", "postgresql", "mysql", "mongodb", "redis",
+            "docker", "kubernetes", "aws", "azure", "ci/cd", "oauth", "jwt", "unit testing", "pytest", "junit"
+        ],
+        "Data Scientist": [
+            "python", "r", "sql", "pandas", "numpy", "scikit-learn", "tensorflow", "pytorch", "matplotlib",
+            "seaborn", "tableau", "power bi", "statistics", "hypothesis testing", "regression", "classification",
+            "clustering", "nlp", "deep learning", "data wrangling", "feature engineering", "big data", "spark", "hadoop"
+        ],
+        "DevOps Engineer": [
+            "linux", "bash", "python", "docker", "kubernetes", "jenkins", "gitlab ci", "github actions",
+            "terraform", "ansible", "prometheus", "grafana", "aws", "azure", "gcp", "cloudformation",
+            "monitoring", "logging", "elk stack", "nginx", "ci/cd", "infrastructure as code", "git"
+        ],
+        "Product Manager": [
+            "agile", "scrum", "kanban", "product roadmap", "user stories", "backlog grooming", "sprint planning",
+            "jira", "confluence", "trello", "user research", "user personas", "a/b testing", "analytics",
+            "kpi", "nps", "mrr", "stakeholder management", "prioritization", "mvp", "product lifecycle"
+        ],
+        "UX/UI Designer": [
+            "figma", "sketch", "adobe xd", "photoshop", "illustrator", "wireframing", "prototyping", "user flows",
+            "usability testing", "user research", "interaction design", "visual design", "design system",
+            "responsive design", "accessibility", "material design", "ios guidelines", "html/css basics", "invision"
+        ],
+        "Full Stack Developer": [
+            "react", "angular", "vue", "node.js", "express", "django", "spring boot", "mongodb", "postgresql",
+            "mysql", "rest", "graphql", "javascript", "typescript", "html", "css", "git", "docker", "aws",
+            "heroku", "tailwind", "bootstrap", "redux", "jwt", "authentication", "ci/cd", "jest", "cypress"
+        ],
+        "Cybersecurity Analyst": [
+            "network security", "firewall", "ids/ips", "siem", "splunk", "vulnerability assessment", "penetration testing",
+            "risk management", "incident response", "compliance", "iso 27001", "nist", "gdpr", "encryption",
+            "identity management", "iam", "endpoint protection", "malware analysis", "ethical hacking", "wireshark"
+        ]
+    };
+
+    // Helper: dynamic fallback for custom roles (smart generic technical / business hybrid)
+    function getDynamicKeywordsForRole(roleName) {
+        const lowerRole = roleName.toLowerCase();
+        // AI / ML specific detection
+        if (lowerRole.includes("machine learning") || lowerRole.includes("ml engineer")) {
+            return ["python", "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy", "deep learning", "mlops", "docker", "kubernetes", "aws", "sql", "data pipelines", "model deployment"];
+        }
+        if (lowerRole.includes("qa") || lowerRole.includes("test") || lowerRole.includes("quality assurance")) {
+            return ["manual testing", "automated testing", "selenium", "cypress", "junit", "testng", "postman", "bug tracking", "jira", "regression testing", "agile", "ci/cd"];
+        }
+        if (lowerRole.includes("mobile") || lowerRole.includes("ios") || lowerRole.includes("android")) {
+            return ["swift", "kotlin", "react native", "flutter", "android sdk", "ios sdk", "mvvm", "rest api", "firebase", "git", "ui testing", "app store deployment"];
+        }
+        if (lowerRole.includes("cloud") || lowerRole.includes("aws") || lowerRole.includes("azure")) {
+            return ["aws", "azure", "gcp", "ec2", "s3", "lambda", "cloudformation", "terraform", "kubernetes", "docker", "serverless", "vpc", "iam", "cloud security"];
+        }
+        // default generalist keywords (mix of soft/technical)
+        return [
+            "communication", "team collaboration", "problem solving", "project management", "agile", "critical thinking",
+            "documentation", "leadership", "time management", "data analysis", "reporting", "stakeholder management",
+            "git", "rest apis", "sql", "linux", "cloud computing", "ci/cd", "testing", "debugging"
+        ];
+    }
+
+    // Get keyword list for given role name (case-insensitive matching)
+    function getKeywordsForRole(roleName) {
+        // find exact match from predefined roles
+        for (let [key, keywords] of Object.entries(ROLE_KEYWORDS_MAP)) {
+            if (key.toLowerCase() === roleName.toLowerCase()) {
+                return [...keywords];
+            }
+        }
+        // also handle if select has value exactly as in map but user custom might match
+        if (ROLE_KEYWORDS_MAP[roleName]) {
+            return [...ROLE_KEYWORDS_MAP[roleName]];
+        }
+        // dynamic generation for custom role
+        return getDynamicKeywordsForRole(roleName);
+    }
+
+    // current active role state (string)
+    let currentRole = "Frontend Developer";
+
+    // DOM elements
+    const roleSelect = document.getElementById("jobRoleSelect");
+    const customRoleInput = document.getElementById("customRoleInput");
+    const applyCustomBtn = document.getElementById("applyCustomBtn");
+    const resumeTextarea = document.getElementById("resumeText");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const matchPercentSpan = document.getElementById("matchPercent");
+    const matchedCountSpan = document.getElementById("matchedCount");
+    const totalKeywordsSpan = document.getElementById("totalKeywordsCount");
+    const missingContainer = document.getElementById("missingKeywordsContainer");
+    const presentContainer = document.getElementById("presentKeywordsContainer");
+
+    // helper: normalize text for keyword matching (lowercase, remove punctuation but keep words)
+    function normalizeKeywordMatch(resumeText, keyword) {
+        const normalizedResume = resumeText.toLowerCase().replace(/[^\w\s]/g, ' ');
+        const keywordLower = keyword.toLowerCase();
+        // we want to match whole word boundaries? but also partial like "react" inside "React.js"? but we want robust
+        // Use regex with word boundaries for standard words; but for short keywords like "c#" we handle edge.
+        // Simpler but accurate: check if keyword exists as a separate word/substring after boundary? 
+        // For realistic resume matching, we check if the normalized resume contains the keyword as a separate token or common compound.
+        // We'll use regex: match keyword as whole word (or with common hyphens) to avoid false positives like "redux" matching "reduction"
+        const escapedKeyword = keywordLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedKeyword}\\b|${escapedKeyword}[\\s\\-_/]|${escapedKeyword}$`, 'i');
+        return regex.test(resumeText);
+    }
+
+    // perform matching and update UI
+    function performMatch() {
+        let resume = resumeTextarea.value.trim();
+        if (resume === "") {
+            // show friendly placeholder result
+            matchPercentSpan.innerText = "0%";
+            matchedCountSpan.innerText = "0";
+            totalKeywordsSpan.innerText = "0";
+            missingContainer.innerHTML = `<span style="color:#94a3b8;">⚠️ Please paste your resume text to see analysis.</span>`;
+            presentContainer.innerHTML = `<span style="color:#94a3b8;">No content yet. Add resume and click Analyze.</span>`;
+            return;
+        }
+
+        const keywords = getKeywordsForRole(currentRole);
+        if (!keywords || keywords.length === 0) {
+            missingContainer.innerHTML = `<span style="color:#c2410c;">⚠️ No keyword data for role "${currentRole}". Try a standard role or custom.</span>`;
+            presentContainer.innerHTML = `<span style="color:#94a3b8;">—</span>`;
+            matchPercentSpan.innerText = "0%";
+            matchedCountSpan.innerText = "0";
+            totalKeywordsSpan.innerText = "0";
+            return;
+        }
+
+        const matched = [];
+        const missing = [];
+
+        for (let kw of keywords) {
+            // use smart matching
+            if (normalizeKeywordMatch(resume, kw)) {
+                matched.push(kw);
+            } else {
+                missing.push(kw);
+            }
+        }
+
+        const matchedCount = matched.length;
+        const totalCount = keywords.length;
+        const percent = totalCount === 0 ? 0 : Math.round((matchedCount / totalCount) * 100);
+
+        // update stats
+        matchPercentSpan.innerText = `${percent}%`;
+        matchedCountSpan.innerText = matchedCount;
+        totalKeywordsSpan.innerText = totalCount;
+
+        // update missing keywords container (highlight missing)
+        if (missing.length === 0) {
+            missingContainer.innerHTML = `<span style="color:#2e7d32;">🎉 Amazing! No missing keywords — your resume is highly optimized for ${currentRole}.</span>`;
+        } else {
+            missingContainer.innerHTML = missing.map(kw => `<span class="missing-badge">${escapeHtml(kw)}</span>`).join('');
+        }
+
+        // update present keywords container (highlight matched)
+        if (matched.length === 0) {
+            presentContainer.innerHTML = `<span style="color:#e07c3c;">⚠️ None of the key keywords found. Consider tailoring your resume.</span>`;
+        } else {
+            presentContainer.innerHTML = matched.map(kw => `<span class="present-badge">✓ ${escapeHtml(kw)}</span>`).join('');
+        }
+    }
+
+    // simple escape to avoid injection
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // set role and update UI (optional: show role change message)
+    function setRoleAndRefresh(role) {
+        currentRole = role;
+        // also reflect in select if it matches a known option
+        let foundInSelect = false;
+        for (let i = 0; i < roleSelect.options.length; i++) {
+            if (roleSelect.options[i].value.toLowerCase() === role.toLowerCase()) {
+                roleSelect.selectedIndex = i;
+                foundInSelect = true;
+                break;
+            }
+        }
+        if (!foundInSelect) {
+            // custom role: set select to blank-ish but not breaking
+            roleSelect.selectedIndex = -1;
+        }
+        // Optionally show snackbar-like note (update missing display if resume exists)
+        if (resumeTextarea.value.trim() !== "") {
+            performMatch();
+        } else {
+            // reset stats but show role ready info
+            matchPercentSpan.innerText = "0%";
+            matchedCountSpan.innerText = "0";
+            totalKeywordsSpan.innerText = "0";
+            missingContainer.innerHTML = `<span style="color:#1e4a6b;">✅ Role set to "${escapeHtml(currentRole)}". Paste resume and click Analyze.</span>`;
+            presentContainer.innerHTML = `<span style="color:#94a3b8;">Ready for analysis.</span>`;
+        }
+    }
+
+    // event handlers
+    function onAnalyze() {
+        performMatch();
+    }
+
+    function onReset() {
+        resumeTextarea.value = "";
+        matchPercentSpan.innerText = "0%";
+        matchedCountSpan.innerText = "0";
+        totalKeywordsSpan.innerText = "0";
+        missingContainer.innerHTML = `<span style="color:#94a3b8;">Resume cleared. Paste new content and analyze again.</span>`;
+        presentContainer.innerHTML = `<span style="color:#94a3b8;">Waiting for analysis.</span>`;
+    }
+
+    function onApplyCustom() {
+        let customRoleRaw = customRoleInput.value.trim();
+        if (customRoleRaw === "") {
+            alert("Please enter a custom role name (e.g., 'Blockchain Developer')");
+            return;
+        }
+        // capitalize first letter for nicer display but keep as provided
+        setRoleAndRefresh(customRoleRaw);
+        customRoleInput.value = "";
+        // also show success info via perform if needed
+        if (resumeTextarea.value.trim() !== "") {
+            performMatch();
+        }
+    }
+
+    function onSelectChange() {
+        const selectedVal = roleSelect.value;
+        if (selectedVal) {
+            setRoleAndRefresh(selectedVal);
+        }
+    }
+
+    // attach event listeners
+    analyzeBtn.addEventListener("click", onAnalyze);
+    resetBtn.addEventListener("click", onReset);
+    applyCustomBtn.addEventListener("click", onApplyCustom);
+    roleSelect.addEventListener("change", onSelectChange);
+
+    // optional: live preview? not required but nice. Add a slight debounced auto-analyze? not mandatory, but we'll add a tiny hint.
+    // manual is better for performance; but we add a small info note.
+    // initialize default: load Frontend Developer keywords preview
+    setRoleAndRefresh("Frontend Developer");
+    // put example text inside textarea as placeholder? already has placeholder, not filling data to respect user.
+    // Optionally provide a sample for demo if empty? but we keep as is.
+    // additionally, ensure if user pastes and clicks analyze, robust.
+    // final small improvement: display total keywords count for current role at any time
+    function updateTotalKeywordsCountDisplay() {
+        const kw = getKeywordsForRole(currentRole);
+        if (kw && totalKeywordsSpan) {
+            // just reflect after analyze
+        }
+    }
+    // update when role changes or custom
+    const origSetRole = setRoleAndRefresh;
+    window.setRoleAndRefresh = setRoleAndRefresh; // noop
+    // final: manual trigger of demo if needed.
+    console.log("Resume Keyword Matcher Ready | roles: ", Object.keys(ROLE_KEYWORDS_MAP));
+</script>
+</body>
+</html>
