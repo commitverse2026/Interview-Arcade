@@ -1,0 +1,144 @@
+body {
+    font-family: monospace, sans-serif;
+    background-color: #1e1e2e;
+    color: #cdd6f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.arcade-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    color: #89b4fa;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.stats-panel {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 20px;
+    background: #313244;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.snippet-container {
+    background-color: #181825;
+    border: 1px solid #45475a;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 700px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.snippet-header {
+    background-color: #313244;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #45475a;
+}
+
+.badge {
+    background-color: #89b4fa;
+    color: #11111b;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge.diff {
+    background-color: #f38ba8;
+}
+
+pre {
+    margin: 0;
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #a6e3a1;
+}
+
+.interaction-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 700px;
+    gap: 10px;
+}
+
+input[type="text"] {
+    padding: 12px;
+    background-color: #313244;
+    border: 1px solid #585b70;
+    color: #cdd6f4;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+input[type="text"]:focus {
+    outline: 2px solid #89b4fa;
+}
+
+button {
+    padding: 12px;
+    font-size: 1rem;
+    font-family: monospace;
+    background-color: #89b4fa;
+    color: #11111b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #b4befe;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#feedback-panel {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 700px;
+    box-sizing: border-box;
+}
+
+.correct {
+    background-color: #a6e3a1;
+    color: #11111b;
+}
+
+.incorrect {
+    background-color: #f38ba8;
+    color: #11111b;
+}
+
+#game-over-panel {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: #313244;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 700px;
+}

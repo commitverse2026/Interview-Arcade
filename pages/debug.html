@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug the Code | Interview Arcade</title>
+    <link rel="stylesheet" href="../styles/debug.css">
+</head>
+<body>
+    <header class="arcade-header">
+        <a href="../modules.html" class="nav-link">← Back to Modules</a>
+        <h1>Debug the Code</h1>
+        <p class="subtitle">Identify and fix the intentional logic errors.</p>
+    </header>
+
+    <main class="game-container">
+        <div class="stats-panel">
+            <div class="stat-box">Level: <span id="current-level">1</span> / 5</div>
+            <div class="stat-box">Score: <span id="score">0</span></div>
+            <div class="stat-box">Attempts: <span id="attempts">0</span></div>
+        </div>
+
+        <div class="snippet-container">
+            <div class="snippet-header">
+                <span id="language-badge" class="badge">Language</span>
+                <span id="difficulty-badge" class="badge diff">Difficulty</span>
+            </div>
+            <pre><code id="code-block">Loading...</code></pre>
+        </div>
+
+        <div class="interaction-panel">
+            <label for="fix-input">Type the corrected line of code:</label>
+            <input type="text" id="fix-input" placeholder="e.g., let i = 0;" autocomplete="off" spellcheck="false">
+            <button id="submit-btn">Submit Fix</button>
+        </div>
+
+        <div id="feedback-panel" class="hidden">
+            <h3 id="feedback-title"></h3>
+            <p id="feedback-explanation"></p>
+            <button id="next-btn" class="hidden">Next Snippet</button>
+        </div>
+
+        <div id="game-over-panel" class="hidden">
+            <h2>Module Complete</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button id="restart-btn">Play Again</button>
+        </div>
+    </main>
+
+    <script src="../games/debug.js"></script>
+</body>
+</html>
