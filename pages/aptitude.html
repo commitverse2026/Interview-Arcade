@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aptitude Quiz</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 10px;
+    }
+
+    .opt {
+      display: block;
+      margin: 10px;
+      padding: 10px;
+      background: #334155;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      color: white;
+    }
+
+    .opt.correct { background: green; }
+    .opt.wrong { background: red; }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    #timerBar {
+      height: 6px;
+      background: lime;
+      width: 100%;
+      margin-bottom: 10px;
+      transition: width 1s linear;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="panelIntro">
+    <h1>Aptitude Quiz</h1>
+    <button id="btnStart">Start Quiz</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="panelQuiz" hidden>
+
+    <div id="qProgress"></div>
+
+    <div id="timerBar"></div>
+    <div>Time Left: <span id="qTimer"></span></div>
+    <div>Total Time: <span id="totalTime">00:00</span></div>
+
+    <h2 id="qText"></h2>
+
+    <div id="options"></div>
+
+    <div id="feedback" hidden></div>
+
+    <button id="btnNext" class="is-hidden">Next</button>
+
+  </div>
+
+  <!-- RESULT -->
+  <div id="panelResult" hidden>
+
+    <h1>Quiz Complete🎉</h1>
+
+    <h2 id="resultScore"></h2>
+    <h3 id="resultPct"></h3>
+
+    <h3 id="resultLabel"></h3>
+    <p id="resultBlurb"></p>
+
+    <p>Total Time: <span id="resultTime"></span></p>
+
+    <button id="btnRetake">Retake Quiz</button>
+    <button id="btnRestart">Back</button>
+
+  </div>
+
+</div>
+
+<script src="../games/aptitude.js"></script>
+
+</body>
+</html>
