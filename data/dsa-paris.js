@@ -1,4 +1,3 @@
-// data/dsa-pairs.js
 
 const dsaPairs = [
     {
