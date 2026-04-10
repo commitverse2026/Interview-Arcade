@@ -139,21 +139,38 @@
     .card {
       width: var(--card-w);
       height: calc(var(--card-w) * 1.12);
-      perspective: 700px;
       padding: 0;
       border: none;
       background: transparent;
       cursor: pointer;
       border-radius: 6px;
+      user-select: none;
+      -webkit-user-select: none;
+      /* Perspective on wrapper — required for child rotateY; avoid <button> (breaks 3D in Chrome/Safari). */
+      perspective: 900px;
+      -webkit-perspective: 900px;
     }
-    .card:disabled { cursor: default; }
+    .card:focus {
+      outline: none;
+    }
+    .card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .card--done {
+      cursor: default;
+      pointer-events: none;
+    }
     .card-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      transition: transform 0.45s ease;
+      transition: transform 0.5s ease;
       transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
       border-radius: 6px;
+      transform: rotateY(0deg);
+      will-change: transform;
     }
     .card.flipped .card-inner,
     .card.matched .card-inner {
@@ -162,7 +179,10 @@
 
     .card-face {
       position: absolute;
-      inset: 0;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -175,6 +195,7 @@
       font-weight: 500;
       line-height: 1.25;
       border: 1px solid var(--rule);
+      box-sizing: border-box;
     }
     .card-back {
       background: linear-gradient(145deg, var(--paper-off) 0%, #e8e4dc 100%);
@@ -182,6 +203,7 @@
       font-family: var(--font-display);
       font-size: 1.1rem;
       letter-spacing: 0.02em;
+      transform: rotateY(0deg);
     }
     .card-front {
       background: var(--paper);

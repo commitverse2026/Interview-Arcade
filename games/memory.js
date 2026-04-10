@@ -89,38 +89,47 @@
     for (var i = 0; i < state.cards.length; i++) {
       (function (index) {
         var c = state.cards[index];
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'card';
-        btn.setAttribute('aria-label', 'Memory card');
-        if (c.matched) btn.classList.add('matched');
-        if (!c.matched && state.flipped.indexOf(index) !== -1) btn.classList.add('flipped');
+        /* Use div, not button — browsers flatten 3D transforms on <button>, which breaks flip + clicks. */
+        var el = document.createElement('div');
+        el.className = 'card';
+        el.setAttribute('role', 'button');
+        el.tabIndex = c.matched ? -1 : 0;
+        el.setAttribute('aria-label', 'Memory card. ' + (c.matched ? 'Matched.' : 'Press to flip.'));
+        if (c.matched) el.classList.add('matched');
+        if (!c.matched && state.flipped.indexOf(index) !== -1) el.classList.add('flipped');
 
-        var inner = document.createElement('span');
+        var inner = document.createElement('div');
         inner.className = 'card-inner';
 
-        var back = document.createElement('span');
+        var back = document.createElement('div');
         back.className = 'card-face card-back';
         back.setAttribute('aria-hidden', 'true');
         back.textContent = 'IA';
 
-        var front = document.createElement('span');
+        var front = document.createElement('div');
         front.className = 'card-face card-front';
         front.textContent = c.label;
 
         inner.appendChild(back);
         inner.appendChild(front);
-        btn.appendChild(inner);
+        el.appendChild(inner);
 
         if (!c.matched) {
-          btn.addEventListener('click', function () {
+          el.addEventListener('click', function (ev) {
+            ev.preventDefault();
             onCardClick(index);
           });
+          el.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault();
+              onCardClick(index);
+            }
+          });
         } else {
-          btn.disabled = true;
+          el.classList.add('card--done');
         }
 
-        board.appendChild(btn);
+        board.appendChild(el);
       })(i);
     }
   }
