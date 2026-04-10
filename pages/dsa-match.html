@@ -1,6 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<title>DSA Match the Following</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: #f4f6fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 800px;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.match-area {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.column {
+  width: 45%;
+}
+
+.item {
+  background: #f1f3f6;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.item:hover {
+  background: #e4e8ee;
+}
+
+.selected {
+  border: 2px solid #4f46e5;
+}
+
+.correct {
+  background: #d1fae5 !important;
+}
+
+.wrong {
+  background: #fee2e2 !important;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #4338ca;
+}
+
+.result {
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 500;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Match the Following (DSA)</h2>
+
+  <div class="match-area">
+    <div class="column" id="leftColumn"></div>
+    <div class="column" id="rightColumn"></div>
+  </div>
+
+  <div class="actions">
+    <button onclick="submitMatches()">Submit</button>
+    <button onclick="resetGame()">Reset</button>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script defer src="../games/dsa-match.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>DSA Match the Following</title>
