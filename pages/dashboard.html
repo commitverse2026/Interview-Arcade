@@ -164,13 +164,12 @@
 
       function render() {
         var grid = document.getElementById('dashGrid');
-        var all = IAStorage.getAllProgress();
         var mods = IAStorage.MODULES;
 
         grid.innerHTML = '';
         for (var i = 0; i < mods.length; i++) {
           var m = mods[i];
-          var p = all[m.id] || {};
+          var p = IAStorage.getModuleProgress(m.id);
           var attempts = p.attempts || 0;
           var completions = p.completions || 0;
           var pct = typeof p.lastScorePercent === 'number' ? p.lastScorePercent : null;
@@ -189,7 +188,18 @@
           meta.className = 'mod-meta';
           var lines = [];
           lines.push('Attempts: ' + attempts);
-          lines.push('Completions: ' + completions);
+          lines.push('Rounds completed: ' + completions);
+          if (m.id === 'tictactoe') {
+            lines.push(
+              'X wins: ' + (p.tttXWins || 0) +
+                ' · O wins: ' + (p.tttOWins || 0) +
+                ' · Draws: ' + (p.tttDraws || 0)
+            );
+            lines.push(
+              'OOP quiz correct: X ' + (p.tttQuizCorrectX || 0) +
+                ' · O ' + (p.tttQuizCorrectO || 0)
+            );
+          }
           if (pct != null) lines.push('Last quiz score: ' + pct + '%');
           if (best != null && best !== pct) lines.push('Best quiz: ' + best + '%');
           if (mem != null) lines.push('Best memory game: ' + mem + ' attempts');
@@ -205,9 +215,14 @@
           bar.style.width = fill + '%';
           barWrap.appendChild(bar);
 
+          var tttActive =
+            m.id === 'tictactoe' &&
+            ((p.tttXWins || 0) + (p.tttOWins || 0) + (p.tttDraws || 0) > 0);
           var badge = document.createElement('span');
-          badge.className = 'badge ' + (attempts > 0 || completions > 0 ? 'badge-played' : 'badge-new');
-          badge.textContent = attempts > 0 || completions > 0 ? 'Activity' : 'Not played yet';
+          var played =
+            attempts > 0 || completions > 0 || tttActive;
+          badge.className = 'badge ' + (played ? 'badge-played' : 'badge-new');
+          badge.textContent = played ? 'Activity' : 'Not played yet';
 
           card.appendChild(title);
           card.appendChild(meta);

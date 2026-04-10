@@ -45,7 +45,12 @@
       lastScorePercent: null,
       bestMemoryAttempts: null,
       lastMemoryAttempts: null,
-      lastPlayed: null
+      lastPlayed: null,
+      tttXWins: 0,
+      tttOWins: 0,
+      tttDraws: 0,
+      tttQuizCorrectX: 0,
+      tttQuizCorrectO: 0
     };
   }
 
@@ -65,6 +70,19 @@
         m.bestMemoryAttempts = patch.memoryAttempts;
       }
     }
+    if (patch.tttRoundOutcome === 'X') {
+      m.tttXWins = (m.tttXWins || 0) + 1;
+    } else if (patch.tttRoundOutcome === 'O') {
+      m.tttOWins = (m.tttOWins || 0) + 1;
+    } else if (patch.tttRoundOutcome === 'draw') {
+      m.tttDraws = (m.tttDraws || 0) + 1;
+    }
+    if (typeof patch.tttQuizDeltaX === 'number' && patch.tttQuizDeltaX > 0) {
+      m.tttQuizCorrectX = (m.tttQuizCorrectX || 0) + patch.tttQuizDeltaX;
+    }
+    if (typeof patch.tttQuizDeltaO === 'number' && patch.tttQuizDeltaO > 0) {
+      m.tttQuizCorrectO = (m.tttQuizCorrectO || 0) + patch.tttQuizDeltaO;
+    }
     m.lastPlayed = new Date().toISOString();
     all[moduleId] = m;
     save(KEY_PROGRESS, all);
@@ -72,6 +90,11 @@
 
   function getAllProgress() {
     return safeParse(KEY_PROGRESS, {});
+  }
+
+  function getModuleProgress(moduleId) {
+    var all = getAllProgress();
+    return Object.assign({}, defaultProgress(), all[moduleId] || {});
   }
 
   function appendFeedback(entry) {
@@ -115,6 +138,7 @@
     MODULES: MODULES,
     recordModule: recordModule,
     getAllProgress: getAllProgress,
+    getModuleProgress: getModuleProgress,
     appendFeedback: appendFeedback,
     getFeedbackEntries: getFeedbackEntries,
     feedbackSummary: feedbackSummary

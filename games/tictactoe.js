@@ -18,8 +18,23 @@
     loser: null,
     quizQueue: [],
     quizIndex: 0,
-    awaitingContinue: false
+    awaitingContinue: false,
+    quizBaseline: { x: 0, o: 0 }
   };
+
+  function saveTicTacToeRound(outcome) {
+    if (typeof IAStorage === 'undefined' || !IAStorage.recordModule) return;
+    var dx = state.scores.xQuiz - state.quizBaseline.x;
+    var dyo = state.scores.oQuiz - state.quizBaseline.o;
+    IAStorage.recordModule('tictactoe', {
+      addCompletions: 1,
+      tttRoundOutcome: outcome,
+      tttQuizDeltaX: dx,
+      tttQuizDeltaO: dyo
+    });
+    state.quizBaseline.x = state.scores.xQuiz;
+    state.quizBaseline.o = state.scores.oQuiz;
+  }
 
   var els = {};
 
@@ -147,6 +162,7 @@
       state.gameOver = true;
       state.winner = 'draw';
       state.pendingQuiz = false;
+      saveTicTacToeRound('draw');
       renderBoard();
       refreshStatus();
       els.btnNextRound.disabled = false;
@@ -250,6 +266,10 @@
   }
 
   function closeQuizAndEnableNext() {
+    var w = state.winner === 'X' || state.winner === 'O' ? state.winner : null;
+    if (w) {
+      saveTicTacToeRound(w);
+    }
     els.quizOverlay.classList.remove('open');
     state.pendingQuiz = false;
     state.loser = null;
@@ -263,7 +283,7 @@
 
   function nextRound() {
     if (typeof IAStorage !== 'undefined' && IAStorage.recordModule) {
-      IAStorage.recordModule('tictactoe', { addAttempts: 1, addCompletions: 1 });
+      IAStorage.recordModule('tictactoe', { addAttempts: 1 });
     }
     state.board = Array(9).fill('');
     state.current = 'X';
