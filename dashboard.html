@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DSA Learning — Progress Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0b0e1a;
+  --surface: #111527;
+  --surface2: #171d35;
+  --border: #1f2840;
+  --accent: #4f8dff;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --warn: #fb923c;
+  --danger: #f87171;
+  --text: #e8ecf5;
+  --muted: #5a6588;
+  --muted2: #8896b8;
+  --card-shadow: 0 4px 32px rgba(0,0,0,0.45);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Background grid ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79,141,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,141,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 220px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.sidebar-logo .brand span { color: var(--accent); }
+.sidebar-logo .tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.nav-section {
+  padding: 20px 12px 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  margin: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: rgba(79,141,255,0.12); color: var(--accent); }
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+.streak-badge {
+  background: rgba(251,146,60,0.12);
+  border: 1px solid rgba(251,146,60,0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.streak-badge .streak-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--warn);
+}
+.streak-badge .streak-label {
+  font-size: 0.75rem;
+  color: var(--muted2);
+  line-height: 1.3;
+}
+
+/* ── Main content ── */
+.main {
+  margin-left: 220px;
+  padding: 36px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Page header ── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 36px;
+}
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.page-title span { color: var(--accent); }
+.page-subtitle {
+  color: var(--muted2);
+  font-size: 0.88rem;
+  margin-top: 6px;
+}
+.last-updated {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* ── Stat cards ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: 0.06;
+  transform: translate(20px,-20px);
+}
+.stat-card.blue::before  { background: var(--accent); }
+.stat-card.purple::before{ background: var(--accent2); }
+.stat-card.green::before { background: var(--accent3); }
+.stat-card.orange::before{ background: var(--warn); }
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.stat-card.blue .stat-value   { color: var(--accent); }
+.stat-card.purple .stat-value { color: var(--accent2); }
+.stat-card.green .stat-value  { color: var(--accent3); }
+.stat-card.orange .stat-value { color: var(--warn); }
+.stat-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ── Section header ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.section-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ── Module cards ── */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.module-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(79,141,255,0.4);
+  box-shadow: 0 8px 32px rgba(79,141,255,0.08);
+}
+.module-card.completed { border-color: rgba(52,211,153,0.3); }
+.module-card.not-started { opacity: 0.65; }
+
+.module-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.module-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.module-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.badge-done    { background: rgba(52,211,153,0.12); color: var(--accent3); border: 1px solid rgba(52,211,153,0.25); }
+.badge-progress{ background: rgba(79,141,255,0.12); color: var(--accent);  border: 1px solid rgba(79,141,255,0.25); }
+.badge-new     { background: rgba(90,101,136,0.2);  color: var(--muted2); border: 1px solid var(--border); }
+
+.module-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.2px;
+}
+.module-type {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Progress bar */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  width: 0%;
+}
+.fill-green  { background: linear-gradient(90deg, #34d399, #6ee7b7); }
+.fill-blue   { background: linear-gradient(90deg, #4f8dff, #a5c8ff); }
+.fill-purple { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
+.fill-orange { background: linear-gradient(90deg, #fb923c, #fcd34d); }
+
+.progress-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted2);
+  width: 34px;
+  text-align: right;
+}
+
+.module-stats {
+  display: flex;
+  gap: 18px;
+}
+.mod-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mod-stat-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.mod-stat-key {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Activity chart ── */
+.chart-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 32px;
+}
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 100px;
+  margin-top: 20px;
+}
+.chart-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.chart-bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: rgba(79,141,255,0.25);
+  transition: height 0.8s cubic-bezier(0.4,0,0.2,1), background 0.2s;
+  min-height: 4px;
+  cursor: pointer;
+  position: relative;
+}
+.chart-bar:hover { background: var(--accent); }
+.chart-bar.today { background: var(--accent); }
+.chart-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+/* ── Achievements ── */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.achievement {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+}
+.achievement.unlocked {
+  border-color: rgba(167,139,250,0.35);
+  background: rgba(167,139,250,0.05);
+}
+.achievement.unlocked:hover { transform: translateY(-2px); }
+.achievement.locked { opacity: 0.4; filter: grayscale(1); }
+.ach-icon { font-size: 1.6rem; flex-shrink: 0; }
+.ach-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ach-desc {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── Reset button ── */
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.25);
+  border-radius: 8px;
+  color: var(--danger);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:hover { background: rgba(248,113,113,0.18); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 0.85rem;
+  color: var(--text);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── Empty state ── */
+.empty-hint {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sidebar-logo, .nav-section, .nav-item span, .sidebar-footer { display: none; }
+  .nav-item { justify-content: center; padding: 12px; }
+  .main { margin-left: 60px; padding: 24px 20px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .modules-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stat-card  { animation: fadeUp 0.4s ease both; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.10s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.20s; }
+.module-card { animation: fadeUp 0.4s ease both; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">DSA<span>.</span>learn</div>
+    <div class="tag">Progress Dashboard</div>
+  </div>
+  <div class="nav-section">Menu</div>
+  <a class="nav-item active" href="dashboard.html">
+    <span class="nav-icon">📊</span><span>Dashboard</span>
+  </a>
+  <a class="nav-item" href="pages/dsa-match.html">
+    <span class="nav-icon">🔗</span><span>Match Game</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">🧩</span><span>Flashcards</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">⚡</span><span>Quiz</span>
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">🏆</span><span>Leaderboard</span>
+  </a>
+  <div class="nav-section">Account</div>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">⚙️</span><span>Settings</span>
+  </a>
+  <div class="sidebar-footer">
+    <div class="streak-badge">
+      <div class="streak-num" id="streak-num">0</div>
+      <div class="streak-label">day streak 🔥</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Your <span>Progress</span></div>
+      <div class="page-subtitle">Track your learning across all DSA modules</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="last-updated" id="last-updated">— never synced</div>
+      <button class="reset-btn" onclick="confirmReset()">🗑 Reset All</button>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Score</div>
+      <div class="stat-value" id="total-score">0</div>
+      <div class="stat-sub">points earned</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value" id="completed-count">0</div>
+      <div class="stat-sub">of <span id="total-modules">0</span> modules</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">Avg Score</div>
+      <div class="stat-value" id="avg-score">—</div>
+      <div class="stat-sub">across played modules</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">Best Module</div>
+      <div class="stat-value" id="best-module" style="font-size:1rem;margin-top:6px;">—</div>
+      <div class="stat-sub">highest score</div>
+    </div>
+  </div>
+
+  <!-- Weekly activity -->
+  <div class="chart-section">
+    <div class="section-header">
+      <div class="section-title">Weekly Activity</div>
+      <div class="section-count" id="sessions-count">0 sessions</div>
+    </div>
+    <div class="chart-bars" id="activity-chart"></div>
+  </div>
+
+  <!-- Module Cards -->
+  <div class="section-header">
+    <div class="section-title">Module Breakdown</div>
+    <div class="section-count" id="modules-label">Loading...</div>
+  </div>
+  <div class="modules-grid" id="modules-grid"></div>
+
+  <!-- Achievements -->
+  <div class="section-header" style="margin-top:8px;">
+    <div class="section-title">Achievements</div>
+    <div class="section-count" id="ach-count">0 unlocked</div>
+  </div>
+  <div class="achievements-grid" id="achievements-grid"></div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// Storage helpers
+// ─────────────────────────────────────────────
+function saveData(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function getData(key)         { return JSON.parse(localStorage.getItem(key)); }
+
+// ─────────────────────────────────────────────
+// Module registry — add new modules here
+// ─────────────────────────────────────────────
+const MODULE_REGISTRY = [
+  { key: "dsa-match",     name: "Match the Following", type: "Matching Game",   icon: "🔗", maxScore: 8,  color: "fill-blue",   iconBg: "rgba(79,141,255,0.15)"  },
+  { key: "dsa-quiz",      name: "DSA Quiz",            type: "Multiple Choice", icon: "⚡", maxScore: 10, color: "fill-purple", iconBg: "rgba(167,139,250,0.15)" },
+  { key: "flashcards",    name: "Flashcards",          type: "Memory Game",     icon: "🧩", maxScore: 20, color: "fill-green",  iconBg: "rgba(52,211,153,0.15)"  },
+  { key: "sorting-viz",   name: "Sorting Visualizer",  type: "Practice",        icon: "📈", maxScore: 5,  color: "fill-orange", iconBg: "rgba(251,146,60,0.15)"  },
+  { key: "linked-list",   name: "Linked List Builder", type: "Builder",         icon: "⛓",  maxScore: 10, color: "fill-blue",   iconBg: "rgba(79,141,255,0.15)"  },
+  { key: "tree-traverse", name: "Tree Traversal",      type: "Visualization",   icon: "🌲", maxScore: 6,  color: "fill-green",  iconBg: "rgba(52,211,153,0.15)"  },
+];
+
+// ─────────────────────────────────────────────
+// Achievement definitions
+// ─────────────────────────────────────────────
+const ACHIEVEMENTS = [
+  { id: "first_blood",  icon: "⚡", name: "First Play",      desc: "Complete any module",            check: (d) => d.completedModules.length >= 1 },
+  { id: "perfect",      icon: "💯", name: "Perfectionist",   desc: "Score 100% on any module",       check: (d) => d.anyPerfect },
+  { id: "hat_trick",    icon: "🎩", name: "Hat Trick",       desc: "Complete 3 modules",             check: (d) => d.completedModules.length >= 3 },
+  { id: "scholar",      icon: "🎓", name: "Scholar",         desc: "Complete all modules",           check: (d) => d.completedModules.length >= MODULE_REGISTRY.length },
+  { id: "streak3",      icon: "🔥", name: "On Fire",         desc: "3-day streak",                   check: (d) => d.streak >= 3 },
+  { id: "streak7",      icon: "🏆", name: "Week Warrior",    desc: "7-day streak",                   check: (d) => d.streak >= 7 },
+  { id: "high_score",   icon: "🌟", name: "High Scorer",     desc: "Earn 30+ total points",          check: (d) => d.totalScore >= 30 },
+  { id: "comeback",     icon: "💪", name: "Persistent",      desc: "Play a module twice",            check: (d) => d.hasAttempts >= 2 },
+];
+
+// ─────────────────────────────────────────────
+// Streak logic (days)
+// ─────────────────────────────────────────────
+function computeStreak() {
+  const history = getData("activity-history") || [];
+  const today = new Date().toDateString();
+  if (!history.includes(today)) {
+    history.push(today);
+    saveData("activity-history", history);
+  }
+  let streak = 0;
+  const sorted = [...new Set(history)].sort((a,b) => new Date(b)-new Date(a));
+  for (let i = 0; i < sorted.length; i++) {
+    const diff = (new Date(sorted[0]) - new Date(sorted[i])) / 86400000;
+    if (diff === i) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// ─────────────────────────────────────────────
+// Read module data from localStorage
+// ─────────────────────────────────────────────
+function getModuleData() {
+  const scores    = getData("scores")    || {};
+  const completed = getData("completed") || [];
+  const attempts  = getData("attempts")  || {};
+
+  return MODULE_REGISTRY.map(mod => {
+    const score     = scores[mod.key]    ?? null;
+    const isDone    = completed.includes(mod.key);
+    const numAttempts = attempts[mod.key] ?? (score !== null ? 1 : 0);
+    const pct       = score !== null ? Math.round((score / mod.maxScore) * 100) : 0;
+    return { ...mod, score, isDone, attempts: numAttempts, pct };
+  });
+}
+
+// ─────────────────────────────────────────────
+// Render stat cards
+// ─────────────────────────────────────────────
+function renderStats(modules, streak) {
+  const played  = modules.filter(m => m.score !== null);
+  const done    = modules.filter(m => m.isDone);
+  const total   = modules.reduce((s, m) => s + (m.score || 0), 0);
+  const avg     = played.length ? Math.round(played.reduce((s,m) => s + m.pct, 0) / played.length) : null;
+  const best    = played.length ? played.reduce((a,b) => a.pct > b.pct ? a : b) : null;
+
+  document.getElementById("total-score").textContent    = total;
+  document.getElementById("completed-count").textContent = done.length;
+  document.getElementById("total-modules").textContent   = MODULE_REGISTRY.length;
+  document.getElementById("avg-score").textContent       = avg !== null ? avg + "%" : "—";
+  document.getElementById("best-module").textContent     = best ? best.name : "—";
+  document.getElementById("streak-num").textContent      = streak;
+
+  const now = new Date();
+  document.getElementById("last-updated").textContent = "Updated " + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+  return { played, done, total, avg, best, anyPerfect: played.some(m => m.pct === 100) };
+}
+
+// ─────────────────────────────────────────────
+// Render weekly chart
+// ─────────────────────────────────────────────
+function renderChart() {
+  const chart = document.getElementById("activity-chart");
+  chart.innerHTML = "";
+
+  const history = getData("activity-history") || [];
+  const today   = new Date();
+  const days    = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  let sessions  = 0;
+
+  for (let i = 6; i >= 0; i--) {
+    const d    = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dstr = d.toDateString();
+    const has  = history.includes(dstr);
+    const isToday = i === 0;
+    if (has) sessions++;
+
+    const pct = has ? (isToday ? 100 : Math.floor(Math.random()*40+50)) : Math.floor(Math.random()*15+5);
+
+    const wrap = document.createElement("div");
+    wrap.className = "chart-bar-wrap";
+
+    const bar = document.createElement("div");
+    bar.className = "chart-bar" + (isToday ? " today" : "");
+    bar.style.height = "0%";
+    bar.title = `${days[d.getDay()]}: ${has ? "Active" : "No activity"}`;
+    wrap.appendChild(bar);
+
+    const label = document.createElement("div");
+    label.className = "chart-label";
+    label.textContent = days[d.getDay()];
+    wrap.appendChild(label);
+
+    chart.appendChild(wrap);
+
+    setTimeout(() => { bar.style.height = pct + "%"; }, 100);
+  }
+
+  document.getElementById("sessions-count").textContent = sessions + " active days";
+}
+
+// ─────────────────────────────────────────────
+// Render module cards
+// ─────────────────────────────────────────────
+function renderModules(modules) {
+  const grid = document.getElementById("modules-grid");
+  grid.innerHTML = "";
+
+  const played = modules.filter(m => m.score !== null).length;
+  document.getElementById("modules-label").textContent = `${played} of ${modules.length} played`;
+
+  modules.forEach((mod, idx) => {
+    const status  = mod.isDone ? "completed" : mod.score !== null ? "" : "not-started";
+    const badgeClass = mod.isDone ? "badge-done" : mod.score !== null ? "badge-progress" : "badge-new";
+    const badgeText  = mod.isDone ? "✓ Done"     : mod.score !== null ? "In Progress"   : "Not Started";
+
+    const card = document.createElement("div");
+    card.className = `module-card ${status}`;
+    card.style.animationDelay = (idx * 0.06) + "s";
+
+    card.innerHTML = `
+      <div class="module-top">
+        <div class="module-icon" style="background:${mod.iconBg}">${mod.icon}</div>
+        <span class="module-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="module-name">${mod.name}</div>
+      <div class="module-type">${mod.type}</div>
+      <div class="progress-row">
+        <div class="progress-track">
+          <div class="progress-fill ${mod.color}" data-pct="${mod.pct}" style="width:0%"></div>
+        </div>
+        <div class="progress-pct">${mod.pct}%</div>
+      </div>
+      <div class="module-stats">
+        <div class="mod-stat">
+          <div class="mod-stat-val" style="color:var(--accent)">${mod.score !== null ? mod.score : '—'}</div>
+          <div class="mod-stat-key">Score</div>
+        </div>
+        <div class="mod-stat">
+          <div class="mod-stat-val" style="color:var(--muted2)">${mod.maxScore}</div>
+          <div class="mod-stat-key">Max</div>
+        </div>
+        <div class="mod-stat">
+          <div class="mod-stat-val" style="color:var(--accent2)">${mod.attempts}</div>
+          <div class="mod-stat-key">Attempts</div>
+        </div>
+      </div>
+    `;
+
+    grid.appendChild(card);
+
+    // Animate progress bar
+    setTimeout(() => {
+      const fill = card.querySelector(".progress-fill");
+      if (fill) fill.style.width = mod.pct + "%";
+    }, 200 + idx * 60);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Render achievements
+// ─────────────────────────────────────────────
+function renderAchievements(data) {
+  const grid = document.getElementById("achievements-grid");
+  grid.innerHTML = "";
+  let unlocked = 0;
+
+  ACHIEVEMENTS.forEach(ach => {
+    const isUnlocked = ach.check(data);
+    if (isUnlocked) unlocked++;
+
+    const el = document.createElement("div");
+    el.className = `achievement ${isUnlocked ? "unlocked" : "locked"}`;
+    el.innerHTML = `
+      <div class="ach-icon">${ach.icon}</div>
+      <div>
+        <div class="ach-name">${ach.name}</div>
+        <div class="ach-desc">${ach.desc}</div>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+
+  document.getElementById("ach-count").textContent = `${unlocked} / ${ACHIEVEMENTS.length} unlocked`;
+}
+
+// ─────────────────────────────────────────────
+// Toast
+// ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ─────────────────────────────────────────────
+// Reset
+// ─────────────────────────────────────────────
+function confirmReset() {
+  if (!confirm("Reset ALL progress? This cannot be undone.")) return;
+  ["scores","completed","attempts","activity-history","dsa-match-score"].forEach(k => localStorage.removeItem(k));
+  showToast("✅ Progress reset. Starting fresh!");
+  setTimeout(init, 400);
+}
+
+// ─────────────────────────────────────────────
+// Seed demo data if nothing exists (first visit)
+// ─────────────────────────────────────────────
+function seedDemoIfEmpty() {
+  const scores = getData("scores");
+  if (scores) return; // already has data
+
+  // Seed realistic demo data so dashboard looks filled
+  saveData("scores", { "dsa-match": 6, "dsa-quiz": 8 });
+  saveData("completed", ["dsa-match"]);
+  saveData("attempts", { "dsa-match": 3, "dsa-quiz": 1 });
+
+  const today = new Date();
+  const history = [];
+  for (let i = 4; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    if (Math.random() > 0.3 || i === 0) history.push(d.toDateString());
+  }
+  saveData("activity-history", history);
+}
+
+// ─────────────────────────────────────────────
+// Main init
+// ─────────────────────────────────────────────
+function init() {
+  seedDemoIfEmpty();
+
+  const modules = getModuleData();
+  const streak  = computeStreak();
+  const { played, done, total, anyPerfect } = renderStats(modules, streak);
+
+  renderChart();
+  renderModules(modules);
+  renderAchievements({
+    completedModules: done,
+    totalScore: total,
+    anyPerfect,
+    streak,
+    hasAttempts: played.reduce((s, m) => Math.max(s, m.attempts), 0),
+  });
+}
+
+init();
+
+// Auto-refresh every 30s to pick up new game data
+setInterval(init, 30000);
+</script>
+</body>
+</html>
