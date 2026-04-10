@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Progress Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: #f4f6fb;
+  padding: 30px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.stat {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 5px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4f46e5;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.score {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.empty {
+  text-align: center;
+  color: #888;
+  margin-top: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Your Progress Dashboard</h1>
+
+<div class="dashboard" id="dashboard"></div>
+
+<div class="empty" id="emptyMsg" style="display:none;">
+  No data yet. Play some games first 🎯
+</div>
+
+<script defer src="scripts/storage.js"></script>
+</body>
+</html>
