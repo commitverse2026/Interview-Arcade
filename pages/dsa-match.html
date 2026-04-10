@@ -1,452 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA Match the Following - Interview Arcade</title>
-    <link rel="stylesheet" href="../styles/main.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Match the Following - Interview Arcade</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .game-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+body {
+    font-family: 'Segoe UI';
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    padding: 20px;
+}
 
-        /* Header */
-        .game-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+.game-wrapper {
+    max-width: 1200px;
+    margin: auto;
+    background: white;
+    border-radius: 15px;
+}
 
-        .game-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
+/* columns */
+.match-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 30px;
+}
 
-        .game-header p {
-            opacity: 0.9;
-        }
+.column {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+}
 
-        /* Stats Bar */
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 30px;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e0e0e0;
-        }
+.terms-list, .definitions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-        .stat-item {
-            text-align: center;
-        }
+/* items */
+.term-item, .def-item {
+    background: white;
+    border: 2px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+/* hover */
+.term-item:hover {
+    transform: translateX(5px);
+}
 
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
+.def-item:hover {
+    transform: translateX(-5px);
+}
 
-        /* Game Area */
-        .game-area {
-            padding: 30px;
-        }
+/* selected */
+.selected {
+    background: #667eea;
+    color: white;
+}
 
-        .match-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 30px;
-        }
+/* correct */
+.matched {
+    background: #d4edda;
+    border-color: #28a745;
+}
 
-        /* Columns */
-        .column {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-        }
+/* 🔥 FIXED WRONG */
+.wrong {
+    background: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #721c24 !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 12px rgba(220,53,69,0.7);
+    transition: all 0.2s ease;
+}
 
-        .column h3 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
+/* 🔥 prevent hover override */
+.term-item.wrong:hover,
+.def-item.wrong:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 12px rgba(220,53,69,0.7) !important;
+}
 
-        .terms-list, .definitions-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+/* feedback */
+.feedback {
+    text-align: center;
+    padding: 10px;
+    margin: 10px;
+    display: none;
+}
 
-        /* Term Items */
-        .term-item {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            user-select: none;
-        }
+.feedback.success {
+    background: #d4edda;
+    display: block;
+}
 
-        .term-item:hover {
-            transform: translateX(5px);
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .term-item.selected {
-            background: #667eea;
-            border-color: #667eea;
-            color: white;
-        }
-
-        .term-item.matched {
-            background: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-            cursor: default;
-            opacity: 0.7;
-        }
-
-        .term-item.matched::after {
-            content: "✓";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-            color: #28a745;
-        }
-
-        /* Definition Items */
-        .def-item {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .def-item:hover {
-            transform: translateX(-5px);
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .def-item.selected {
-            background: #667eea;
-            border-color: #667eea;
-            color: white;
-        }
-
-        .def-item.matched {
-            background: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-            cursor: default;
-            opacity: 0.7;
-        }
-
-        .def-item.matched::after {
-            content: "✓";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-            color: #28a745;
-        }
-
-        /* Connection Lines Canvas */
-        .lines-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-
-        /* Results Modal */
-        .results-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .results-card {
-            background: white;
-            border-radius: 15px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 30px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .results-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .score-display {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .score-number {
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .match-results {
-            margin: 20px 0;
-        }
-
-        .match-item {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .match-item.correct {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-        }
-
-        .match-item.incorrect {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-        }
-
-        .restart-btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        /* Feedback Message */
-        .feedback {
-            text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .feedback.success {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-        }
-
-        .feedback.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .match-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .game-area {
-                padding: 15px;
-            }
-        }
-    </style>
+.feedback.error {
+    background: #f8d7da;
+    display: block;
+}
+</style>
 </head>
+
 <body>
-    <div class="game-wrapper">
-        <div class="game-header">
-            <h1>🔗 DSA Match the Following</h1>
-            <p>Match the Data Structures & Algorithms terms with their correct definitions</p>
+
+<div class="game-wrapper">
+
+    <div class="match-container">
+
+        <div class="column">
+            <h3>Terms</h3>
+            <div id="termsList"></div>
         </div>
 
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-label">Matches Made</div>
-                <div class="stat-value" id="matchesCount">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Total Pairs</div>
-                <div class="stat-value" id="totalPairs">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Score</div>
-                <div class="stat-value" id="scoreDisplay">0</div>
-            </div>
+        <div class="column">
+            <h3>Definitions</h3>
+            <div id="definitionsList"></div>
         </div>
 
-        <div class="game-area">
-            <div class="match-container">
-                <!-- Left Column: Terms -->
-                <div class="column">
-                    <h3>📚 DSA Terms</h3>
-                    <div class="terms-list" id="termsList"></div>
-                </div>
-
-                <!-- Right Column: Definitions -->
-                <div class="column">
-                    <h3>📖 Definitions</h3>
-                    <div class="definitions-list" id="definitionsList"></div>
-                </div>
-            </div>
-
-            <div class="feedback" id="feedback"></div>
-
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="resetSelection()">Reset Selection</button>
-                <button class="btn btn-primary" onclick="submitMatches()">Submit Matches</button>
-                <button class="btn btn-danger" onclick="resetGame()">Reset Game</button>
-            </div>
-        </div>
     </div>
 
-    <!-- Results Modal -->
-    <div class="results-overlay" id="resultsOverlay">
-        <div class="results-card">
-            <div class="results-header">
-                <h2>📊 Match Results</h2>
-            </div>
-            <div class="score-display">
-                <div class="score-circle">
-                    <div class="score-number" id="finalScore">0</div>
-                    <div class="score-total" id="totalScore">/0</div>
-                </div>
-            </div>
-            <div class="match-results" id="matchResults"></div>
-            <button class="restart-btn" onclick="closeResultsAndReset()">Play Again</button>
-        </div>
-    </div>
+    <div id="feedback" class="feedback"></div>
 
-    <canvas id="linesCanvas" class="lines-canvas"></canvas>
+</div>
 
-    <script src="../data/dsa-paris.js"></script>
-    <script src="../games/dsa-match.js"></script>
+<script>
+const pairs = [
+    { term: "Stack", def: "LIFO structure" },
+    { term: "Queue", def: "FIFO structure" },
+    { term: "Array", def: "Contiguous memory" },
+    { term: "Linked List", def: "Nodes connected via pointers" }
+];
+
+let terms = pairs.map(p => p.term);
+let defs = pairs.map(p => p.def).sort(() => Math.random() - 0.5);
+
+let selectedTerm = null;
+let selectedDef = null;
+
+function render() {
+    const tList = document.getElementById("termsList");
+    const dList = document.getElementById("definitionsList");
+
+    tList.innerHTML = "";
+    dList.innerHTML = "";
+
+    terms.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = "term-item";
+        div.innerText = t;
+        div.onclick = () => selectTerm(i);
+        tList.appendChild(div);
+    });
+
+    defs.forEach((d, i) => {
+        const div = document.createElement("div");
+        div.className = "def-item";
+        div.innerText = d;
+        div.onclick = () => selectDef(i);
+        dList.appendChild(div);
+    });
+}
+
+function selectTerm(i) {
+    document.querySelectorAll(".term-item").forEach(el => el.classList.remove("selected"));
+    selectedTerm = i;
+    document.querySelectorAll(".term-item")[i].classList.add("selected");
+}
+
+function selectDef(i) {
+    selectedDef = i;
+    match();
+}
+
+function match() {
+    if (selectedTerm === null || selectedDef === null) return;
+
+    const term = terms[selectedTerm];
+    const def = defs[selectedDef];
+    const correct = pairs.find(p => p.term === term).def;
+
+    const tEl = document.querySelectorAll(".term-item")[selectedTerm];
+    const dEl = document.querySelectorAll(".def-item")[selectedDef];
+
+    if (def === correct) {
+        tEl.classList.add("matched");
+        dEl.classList.add("matched");
+        show("✅ Correct!", "success");
+    } else {
+        tEl.classList.add("wrong");
+        dEl.classList.add("wrong");
+        show("❌ Wrong!", "error");
+
+        setTimeout(() => {
+            tEl.classList.remove("wrong");
+            dEl.classList.remove("wrong");
+        }, 800);
+    }
+
+    selectedTerm = null;
+    selectedDef = null;
+}
+
+function show(msg, type) {
+    const fb = document.getElementById("feedback");
+    fb.innerText = msg;
+    fb.className = "feedback " + type;
+}
+
+render();
+</script>
+
 </body>
 </html>
