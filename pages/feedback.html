@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback System - Interview Arcade</title>
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/feedback.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📝 Feedback System</h1>
+        <p>Help us improve Interview Arcade</p>
+        <a href="../index.html" class="btn-back">← Back to Home</a>
+      </header>
+
+      <main>
+        <!-- Feedback Form -->
+        <section class="feedback-form-section">
+          <h2>Submit Your Feedback</h2>
+
+          <form id="feedbackForm">
+            <div class="form-group">
+              <label for="userName">Your Name (optional)</label>
+              <input type="text" id="userName" placeholder="Enter your name" />
+            </div>
+
+            <div class="form-group">
+              <label>Overall Platform Rating</label>
+              <div class="star-rating" id="overallRating">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+              </div>
+              <span class="rating-text" id="ratingText">Click to rate</span>
+            </div>
+
+            <div class="form-group">
+              <label for="feedbackComment">Your Feedback</label>
+              <textarea
+                id="feedbackComment"
+                rows="5"
+                placeholder="Tell us what you think..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Rate Individual Modules (optional)</label>
+              <div class="module-ratings" id="moduleRatings">
+                <!-- Dynamically generated -->
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Submit Feedback</button>
+          </form>
+
+          <div
+            id="successMessage"
+            class="success-message"
+            style="display: none"
+          >
+            ✓ Thank you! Your feedback has been recorded.
+          </div>
+        </section>
+
+        <!-- Feedback Summary -->
+        <section class="feedback-summary-section">
+          <h2>Feedback Summary</h2>
+
+          <div class="summary-stats">
+            <div class="stat-card">
+              <h3 id="totalFeedbacks">0</h3>
+              <p>Total Feedbacks</p>
+            </div>
+            <div class="stat-card">
+              <h3 id="averageRating">0.0</h3>
+              <p>Average Rating</p>
+            </div>
+          </div>
+
+          <div class="recent-feedback">
+            <h3>Recent Comments</h3>
+            <div id="feedbackList">
+              <p class="no-feedback">No feedback yet. Be the first!</p>
+            </div>
+          </div>
+
+          <button id="clearAllBtn" class="btn-danger">
+            Clear All Feedback
+          </button>
+        </section>
+      </main>
+    </div>
+
+    <script src="../games/feedback.js"></script>
+  </body>
+</html>
