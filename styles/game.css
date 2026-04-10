@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+}
+
+.column {
+    width: 40%;
+}
+
+.item {
+    padding: 10px;
+    margin: 8px;
+    border: 1px solid #333;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: lightblue;
+}
+
+.correct {
+    background-color: lightgreen;
+}
+
+.wrong {
+    background-color: lightcoral;
+}
