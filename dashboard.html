@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Progress Dashboard — Interview Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #111010;
+      --ink-muted: #6b6b6b;
+      --ink-faint: #e8e6e0;
+      --paper: #faf9f6;
+      --paper-off: #f1efe8;
+      --accent: #c84b2f;
+      --accent-soft: #f5ece8;
+      --rule: #d8d6cf;
+      --green: #2a6b2a;
+      --green-bg: #e5f1e5;
+      --amber: #7a5a10;
+      --amber-bg: #faf0e0;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --max: 1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--paper); border-bottom: 1px solid var(--rule);
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); }
+    .nav-brand span { color: var(--accent); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    /* PAGE HEADER */
+    .page-header {
+      padding-top: 60px;
+      max-width: var(--max); margin: 0 auto;
+      padding-left: 2rem; padding-right: 2rem;
+    }
+    .page-header-inner {
+      border-bottom: 1px solid var(--rule);
+      padding: 3rem 0 2rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+      animation: fadeUp 0.6s ease both;
+    }
+    .page-eyebrow { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+    .page-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; letter-spacing: -0.02em; }
+    .page-subtitle { font-size: 0.82rem; font-weight: 300; color: var(--ink-muted); padding-bottom: 0.4rem; }
+
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 2rem 5rem; }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+      margin: 2.5rem 0;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .stat-card { background: var(--paper); padding: 1.5rem 1.75rem; }
+    .stat-value { font-family: var(--font-display); font-size: 2.4rem; color: var(--ink); line-height: 1; margin-bottom: 6px; }
+    .stat-value.accent { color: var(--accent); }
+    .stat-label { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); }
+
+    /* OVERALL BANNER */
+    .overall-banner {
+      display: flex; align-items: center; gap: 2.5rem;
+      background: var(--paper-off); border: 1px solid var(--rule); border-radius: 6px;
+      padding: 2rem 2.5rem; margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+    .ring-wrap { position: relative; width: 96px; height: 96px; flex-shrink: 0; }
+    .ring-wrap svg { transform: rotate(-90deg); }
+    .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .ring-pct { font-family: var(--font-display); font-size: 1.5rem; color: var(--accent); line-height: 1; }
+    .ring-text { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-top: 2px; }
+    .overall-text h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); margin-bottom: 0.4rem; }
+    .overall-text p { font-size: 0.88rem; font-weight: 300; color: var(--ink-muted); line-height: 1.6; max-width: 460px; }
+
+    /* SECTION HEADING */
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--rule); padding-bottom: 0.75rem; margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .section-head h3 { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); }
+
+    /* MODULE CARDS GRID */
+    .modules-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--rule);
+      border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s 0.25s ease both;
+    }
+
+    .mod-card {
+      background: var(--paper); padding: 1.5rem 1.75rem;
+      display: flex; flex-direction: column; gap: 0;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .mod-card:hover { background: var(--paper-off); }
+    .mod-card.is-completed { border-left: 3px solid var(--green); }
+    .mod-card.not-started { opacity: 0.6; }
+
+    .mod-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+    .mod-icon { font-size: 1.4rem; line-height: 1; }
+    .mod-badge {
+      font-size: 0.65rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 2px;
+    }
+    .badge-done    { background: var(--green-bg); color: var(--green); }
+    .badge-progress{ background: var(--amber-bg); color: var(--amber); }
+    .badge-new     { background: var(--ink-faint); color: var(--ink-muted); }
+
+    .mod-title { font-size: 0.95rem; font-weight: 500; color: var(--ink); margin-bottom: 0.25rem; line-height: 1.3; }
+    .mod-topic { font-size: 0.75rem; font-weight: 300; color: var(--ink-muted); margin-bottom: 1rem; }
+
+    .score-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .score-chip { }
+    .score-chip .chip-label { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+    .score-chip .chip-val { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); line-height: 1.2; }
+
+    .prog-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--ink-muted); margin-bottom: 4px; }
+    .prog-track { background: var(--ink-faint); border-radius: 99px; height: 5px; overflow: hidden; }
+    .prog-fill  { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.9s cubic-bezier(.4,0,.2,1); width: 0%; }
+
+    .mod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
+    .mod-date { font-size: 0.68rem; color: var(--ink-muted); }
+    .play-link {
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); display: flex; align-items: center; gap: 4px; transition: gap 0.15s;
+    }
+    .play-link:hover { gap: 8px; }
+
+    /* RESET */
+    .reset-wrap { text-align: center; padding: 1rem 0; animation: fadeUp 0.6s 0.3s ease both; }
+    .reset-btn {
+      background: transparent; border: 1px solid var(--rule);
+      color: var(--ink-muted); font-family: var(--font-body);
+      font-size: 0.8rem; padding: 8px 20px; border-radius: 3px;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--rule); padding: 1.5rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: var(--max); margin: 0 auto; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-brand { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); }
+    .footer-brand span { color: var(--accent); }
+    .footer-note { font-size: 0.78rem; color: var(--ink-muted); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width: 900px) { .modules-grid { grid-template-columns: repeat(2,1fr); } .stats-bar { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 560px) { .modules-grid { grid-template-columns: 1fr; } .stats-bar { grid-template-columns: 1fr 1fr; } nav { padding: 0 1rem; } .container { padding: 0 1rem 3rem; } .overall-banner { padding: 1.5rem; gap: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">Interview <span>Arcade</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="modules.html">Modules</a>
+    <a href="dashboard.html" class="active">Dashboard</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="page-eyebrow">Your Progress</div>
+      <h1 class="page-title">Progress Dashboard</h1>
+    </div>
+    <div class="page-subtitle">All scores pulled from local storage · No account needed</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value accent" id="stat-completed">0</div><div class="stat-label">Modules Completed</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-attempts">0</div><div class="stat-label">Total Attempts</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-avg">—</div><div class="stat-label">Avg Score %</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-played">0</div><div class="stat-label">Modules Played</div></div>
+  </div>
+
+  <!-- Overall ring banner -->
+  <div class="overall-banner">
+    <div class="ring-wrap">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="40" fill="none" stroke="#e8e6e0" stroke-width="8"/>
+        <circle id="ring-circle" cx="48" cy="48" r="40" fill="none" stroke="#c84b2f" stroke-width="8"
+                stroke-dasharray="251" stroke-dashoffset="251" stroke-linecap="round"
+                style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ring-pct">0%</div>
+        <div class="ring-text">done</div>
+      </div>
+    </div>
+    <div class="overall-text">
+      <h2 id="overall-heading">Ready to start?</h2>
+      <p id="overall-desc">Pick a module and begin practicing. Your progress will appear here automatically.</p>
+    </div>
+  </div>
+
+  <!-- Module breakdown -->
+  <div class="section-head">
+    <h3>Module Breakdown</h3>
+  </div>
+
+  <div class="modules-grid" id="modules-grid"></div>
+
+  <div class="reset-wrap">
+    <button class="reset-btn" onclick="confirmReset()">🗑 Reset All Progress</button>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-brand">Interview <span>Arcade</span></div>
+  <div class="footer-note">Play. Learn. Crack Interviews.</div>
+</footer>
+
+<script src="scripts/storage.js"></script>
+<script>
+  const MODULES = [
+    { id:'tictactoe', title:'Tic Tac Toe + OOP Quiz',   topic:'OOP Concepts',                 icon:'♟',  href:'pages/tictactoe.html', max:5   },
+    { id:'memory',    title:'Memory Card Game',          topic:'Technical Terminology',         icon:'🧩', href:'pages/memory.html',    max:8   },
+    { id:'aptitude',  title:'Aptitude Quiz',             topic:'Logical Reasoning',             icon:'📝', href:'pages/aptitude.html',  max:10  },
+    { id:'resume',    title:'Resume Keyword Matcher',    topic:'Job Readiness',                 icon:'📄', href:'pages/resume.html',    max:100 },
+    { id:'sql',       title:'SQL Fill in the Blanks',    topic:'SQL Queries',                   icon:'🗄', href:'pages/sql.html',       max:10  },
+    { id:'riddles',   title:'Image Riddles',             topic:'Visual Problem Solving',        icon:'🖼', href:'pages/riddles.html',   max:10  },
+    { id:'dsamatch',  title:'DSA Match the Following',   topic:'Data Structures & Algorithms',  icon:'🔗', href:'pages/dsa-match.html', max:10  },
+    { id:'debug',     title:'Debug the Code',            topic:'Code Debugging',                icon:'🐛', href:'pages/debug.html',     max:5   },
+    { id:'feedback',  title:'Feedback System',           topic:'Platform Feedback',             icon:'💬', href:'pages/feedback.html',  max:5   },
+  ];
+
+  function pct(score, total) { return total ? Math.min(100, Math.round((score/total)*100)) : 0; }
+
+  function formatDate(iso) {
+    if (!iso) return null;
+    return new Date(iso).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  function heading(done, total) {
+    if (done === 0)    return 'Ready to start? 🚀';
+    if (done < 3)      return 'Great start — keep going! 💪';
+    if (done < 6)      return "Halfway there — you're on fire! 🔥";
+    if (done < total)  return 'Almost there — push through! ⚡';
+    return 'All modules complete — Interview-ready! 🏆';
+  }
+
+  function render() {
+    const grid = document.getElementById('modules-grid');
+    grid.innerHTML = '';
+
+    let completed = 0, attempts = 0, played = 0, scoreSum = 0, scoredCount = 0;
+
+    MODULES.forEach(mod => {
+      const d = getModuleResult(mod.id);
+      const isPlayed    = d.attempts > 0;
+      const isDone      = d.completed;
+      const scorePct    = pct(d.bestScore, mod.max);
+
+      if (isDone)    completed++;
+      if (isPlayed)  { played++; scoreSum += scorePct; scoredCount++; }
+      attempts += d.attempts;
+
+      const badgeClass = isDone ? 'badge-done' : isPlayed ? 'badge-progress' : 'badge-new';
+      const badgeText  = isDone ? '✓ Completed'  : isPlayed ? 'In Progress'   : 'Not Started';
+      const cardClass  = isDone ? 'is-completed'  : !isPlayed ? 'not-started'  : '';
+      const date       = formatDate(d.lastPlayed);
+      const playLabel  = isDone ? 'Play Again →' : isPlayed ? 'Continue →' : 'Start →';
+
+      const card = document.createElement('div');
+      card.className = `mod-card ${cardClass}`;
+      card.innerHTML = `
+        <div class="mod-header">
+          <div class="mod-icon">${mod.icon}</div>
+          <span class="mod-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="mod-title">${mod.title}</div>
+        <div class="mod-topic">${mod.topic}</div>
+        <div class="score-row">
+          <div class="score-chip">
+            <div class="chip-label">Best Score</div>
+            <div class="chip-val">${isPlayed ? d.bestScore+'/'+mod.max : '—'}</div>
+          </div>
+          <div class="score-chip">
+            <div class="chip-label">Attempts</div>
+            <div class="chip-val">${d.attempts}</div>
+          </div>
+          <div class="score-chip">
+            <div class="chip-label">Score %</div>
+            <div class="chip-val">${isPlayed ? scorePct+'%' : '—'}</div>
+          </div>
+        </div>
+        <div class="prog-label"><span>Score progress</span><span>${scorePct}%</span></div>
+        <div class="prog-track"><div class="prog-fill" data-pct="${scorePct}"></div></div>
+        <div class="mod-footer">
+          <div class="mod-date">${date ? 'Last played: '+date : 'Never played'}</div>
+          <a href="${mod.href}" class="play-link">${playLabel}</a>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Animate bars after paint
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.prog-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+    });
+
+    // Stats
+    document.getElementById('stat-completed').textContent = completed;
+    document.getElementById('stat-attempts').textContent  = attempts;
+    document.getElementById('stat-avg').textContent       = scoredCount ? Math.round(scoreSum/scoredCount)+'%' : '—';
+    document.getElementById('stat-played').textContent    = played;
+
+    // Ring
+    const overallPct = Math.round((completed / MODULES.length) * 100);
+    const circumference = 251;
+    setTimeout(() => {
+      document.getElementById('ring-circle').style.strokeDashoffset = circumference - (circumference * overallPct / 100);
+    }, 100);
+    document.getElementById('ring-pct').textContent       = overallPct + '%';
+    document.getElementById('overall-heading').textContent = heading(completed, MODULES.length);
+    document.getElementById('overall-desc').textContent   =
+      `${completed} of ${MODULES.length} modules completed · ${attempts} total attempt${attempts !== 1 ? 's' : ''}. ` +
+      (completed < MODULES.length ? 'Keep going!' : 'Outstanding work!');
+  }
+
+  function confirmReset() {
+    if (confirm('Reset all progress? This cannot be undone.')) { clearAll(); render(); }
+  }
+
+  render();
+</script>
+
+</body>
+</html>
